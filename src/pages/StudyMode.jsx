@@ -218,7 +218,10 @@ const StudyMode = () => {
           <div>
             <h1 className="text-2xl font-bold text-text-primary dark:text-dark-text-primary">{deck.title}</h1>
             <div className="text-sm text-text-secondary dark:text-dark-text-secondary">
-              Study Session • {sessionStats.correct}/{sessionStats.total} correct ({accuracy}% accuracy)
+              {currentMode === STUDY_MODES.FLIP 
+                ? 'Study Session • Flashcards'
+                : `Study Session • ${sessionStats.correct}/${sessionStats.total} correct (${accuracy}% accuracy)`
+              }
             </div>
           </div>
         </div>
