@@ -48,7 +48,7 @@ const EditDeck = () => {
         description: deckData.description.trim(),
       });
 
-      navigate(`/deck/${deckId}`);
+  navigate('/');
     } catch (error) {
       alert('Failed to update deck: ' + error.message);
     } finally {
@@ -84,7 +84,7 @@ const EditDeck = () => {
       {/* Header */}
       <div className="flex items-center space-x-4 mb-8">
         <Link
-          to={`/deck/${deckId}`}
+          to="/"
           className="p-2 text-text-secondary dark:text-dark-text-secondary hover:text-primary dark:hover:text-dark-primary transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />

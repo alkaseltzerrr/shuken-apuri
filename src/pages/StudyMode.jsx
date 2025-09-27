@@ -30,6 +30,7 @@ const StudyMode = () => {
   const [showResults, setShowResults] = useState(false);
   const [deckProgress, setDeckProgress] = useState([]);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showReturnModal, setShowReturnModal] = useState(false);
 
   useEffect(() => {
     const foundDeck = decks.find(d => d.id === deckId);
@@ -230,12 +231,12 @@ const StudyMode = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-4">
-          <Link
-            to={`/deck/${deckId}`}
+          <button
+            onClick={() => setShowReturnModal(true)}
             className="p-2 text-text-secondary dark:text-dark-text-secondary hover:text-primary dark:hover:text-dark-primary transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-          </Link>
+          </button>
           <div>
             <h1 className="text-2xl font-bold text-text-primary dark:text-dark-text-primary">{deck.title}</h1>
             <div className="text-sm text-text-secondary dark:text-dark-text-secondary">
@@ -359,6 +360,31 @@ const StudyMode = () => {
           onConfirm={confirmCancelSession}
           onCancel={closeCancelModal}
         />
+      )}
+      {showReturnModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setShowReturnModal(false)} />
+          <div className="relative w-full max-w-sm mx-4">
+            <div className="bg-card/95 dark:bg-dark-card/95 rounded-lg shadow-xl p-6">
+              <h3 className="text-lg font-semibold text-text-primary dark:text-dark-text-primary mb-2">Return to</h3>
+              <p className="text-sm text-text-secondary dark:text-dark-text-secondary mb-4">Where would you like to go?</p>
+              <div className="flex justify-center space-x-3">
+                <button
+                  onClick={() => { setShowReturnModal(false); navigate('/'); }}
+                  className="px-4 py-2 bg-secondary dark:bg-dark-secondary text-white rounded-md"
+                >
+                  Home
+                </button>
+                <button
+                  onClick={() => { setShowReturnModal(false); navigate(`/deck/${deckId}`); }}
+                  className="px-4 py-2 bg-primary dark:bg-dark-primary text-white rounded-md"
+                >
+                  Deck
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
