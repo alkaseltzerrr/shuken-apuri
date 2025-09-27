@@ -5,6 +5,7 @@ import { ArrowLeft, RotateCcw, Target, Type, Trophy, Home } from 'lucide-react';
 import FlipCard from '../components/FlipCard';
 import MultipleChoice from '../components/MultipleChoice';
 import IdentificationMode from '../components/IdentificationMode';
+import ConfirmModal from '../components/ConfirmModal';
 import { createCardProgress, updateCardProgress, getCardsToReview } from '../utils/spacedRepetition';
 
 const STUDY_MODES = {
@@ -28,6 +29,7 @@ const StudyMode = () => {
   });
   const [showResults, setShowResults] = useState(false);
   const [deckProgress, setDeckProgress] = useState([]);
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
   useEffect(() => {
     const foundDeck = decks.find(d => d.id === deckId);
@@ -127,14 +129,19 @@ const StudyMode = () => {
   };
 
   const cancelSession = () => {
-    if (window.confirm('Are you sure you want to cancel the current session? Your progress will be lost.')) {
-      setCurrentCardIndex(0);
-      setSessionStats({ correct: 0, incorrect: 0, total: 0 });
-      setShowResults(false);
-      // Shuffle cards again
-      setStudyCards(prev => [...prev].sort(() => Math.random() - 0.5));
-    }
+    setShowCancelModal(true);
   };
+
+  const confirmCancelSession = () => {
+    setShowCancelModal(false);
+    setCurrentCardIndex(0);
+    setSessionStats({ correct: 0, incorrect: 0, total: 0 });
+    setShowResults(false);
+    // Shuffle cards again
+    setStudyCards(prev => [...prev].sort(() => Math.random() - 0.5));
+  };
+
+  const closeCancelModal = () => setShowCancelModal(false);
 
   if (!deck || studyCards.length === 0) {
     return (
@@ -341,6 +348,16 @@ const StudyMode = () => {
           onNext={handleNext}
           currentIndex={currentCardIndex}
           totalCards={studyCards.length}
+        />
+      )}
+      {showCancelModal && (
+        <ConfirmModal
+          title="Cancel Session"
+          description="Are you sure you want to cancel the current session? Your progress will be lost."
+          confirmText="OK"
+          cancelText="Keep"
+          onConfirm={confirmCancelSession}
+          onCancel={closeCancelModal}
         />
       )}
     </div>
