@@ -60,29 +60,29 @@ const MultipleChoice = ({
       {/* Progress */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-text-secondary">
+          <span className="text-sm text-text-secondary dark:text-dark-text-secondary">
             Question {currentIndex + 1} of {totalCards}
           </span>
-          <span className="text-sm font-medium text-text-primary">
+          <span className="text-sm font-medium text-text-primary dark:text-dark-text-primary">
             {Math.round(((currentIndex + 1) / totalCards) * 100)}%
           </span>
         </div>
-        <div className="w-full bg-card/50 rounded-full h-2">
+        <div className="w-full bg-card/50 dark:bg-dark-card/50 rounded-full h-2">
           <div 
-            className="bg-secondary h-2 rounded-full transition-all duration-700"
+            className="bg-secondary dark:bg-dark-secondary h-2 rounded-full transition-all duration-700"
             style={{ width: `${((currentIndex + 1) / totalCards) * 100}%` }}
           ></div>
         </div>
       </div>
 
       {/* Question */}
-      <div className="bg-card/95 backdrop-blur-sm rounded-xl shadow-lg p-8 mb-6 border-2 border-primary">
+      <div className="bg-card/95 dark:bg-dark-card/95 backdrop-blur-sm rounded-xl shadow-lg p-8 mb-6 border-2 border-primary dark:border-dark-primary">
         <div className="text-center">
-          <div className="text-2xl md:text-3xl font-medium text-text-primary mb-4">
+          <div className="text-2xl md:text-3xl font-medium text-text-primary dark:text-dark-text-primary mb-4">
             {card.front}
           </div>
           {!showResult && (
-            <div className="text-sm text-text-secondary">
+            <div className="text-sm text-text-secondary dark:text-dark-text-secondary">
               Select your answer (or use keys 1-4)
             </div>
           )}
@@ -95,13 +95,13 @@ const MultipleChoice = ({
           let buttonClass = "w-full text-left p-4 rounded-xl border-2 transition-all duration-500 ";
           
           if (!showResult) {
-            buttonClass += "bg-card/90 border-text-secondary/20 hover:border-primary hover:bg-primary hover:text-white cursor-pointer";
+            buttonClass += "bg-card/90 dark:bg-dark-card/90 border-text-secondary/20 dark:border-dark-text-secondary/20 hover:border-primary dark:hover:border-dark-primary hover:bg-primary dark:hover:bg-dark-primary hover:text-white cursor-pointer text-text-primary dark:text-dark-text-primary";
           } else if (option === card.back) {
-            buttonClass += "bg-secondary text-white border-secondary";
+            buttonClass += "bg-secondary dark:bg-dark-secondary text-white border-secondary dark:border-dark-secondary";
           } else if (option === selectedAnswer) {
-            buttonClass += "bg-warning text-white border-warning";
+            buttonClass += "bg-warning dark:bg-dark-warning text-white border-warning dark:border-dark-warning";
           } else {
-            buttonClass += "bg-text-secondary/10 text-text-secondary border-text-secondary/20";
+            buttonClass += "bg-text-secondary/10 dark:bg-dark-text-secondary/10 text-text-secondary dark:text-dark-text-secondary border-text-secondary/20 dark:border-dark-text-secondary/20";
           }
 
           return (
@@ -133,17 +133,17 @@ const MultipleChoice = ({
       {/* Result and Next Button */}
       {showResult && (
         <div className="text-center">
-          <div className={`text-lg font-medium mb-4 ${isCorrect ? 'text-secondary' : 'text-warning'}`}>
+          <div className={`text-lg font-medium mb-4 ${isCorrect ? 'text-secondary dark:text-dark-secondary' : 'text-warning dark:text-dark-warning'}`}>
             {isCorrect ? '🎉 Correct!' : '❌ Incorrect'}
           </div>
           {!isCorrect && (
-            <div className="text-text-secondary mb-4">
+            <div className="text-text-secondary dark:text-dark-text-secondary mb-4">
               The correct answer is: <span className="font-medium">{card.back}</span>
             </div>
           )}
           <button
             onClick={handleNext}
-            className="bg-primary text-white px-8 py-3 rounded-lg hover:bg-opacity-90 transition-all duration-400 hover:transform hover:scale-105"
+            className="bg-primary dark:bg-dark-primary text-white px-8 py-3 rounded-lg hover:bg-opacity-90 transition-all duration-400 hover:transform hover:scale-105"
           >
             {currentIndex === totalCards - 1 ? 'Finish' : 'Next Question'}
           </button>
@@ -152,7 +152,7 @@ const MultipleChoice = ({
 
       {/* Keyboard shortcuts */}
       {!showResult && (
-        <div className="mt-6 text-center text-sm text-text-secondary">
+        <div className="mt-6 text-center text-sm text-text-secondary dark:text-dark-text-secondary">
           Use keys 1-4 to select answers quickly
         </div>
       )}

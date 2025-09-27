@@ -82,21 +82,21 @@ const CreateDeck = () => {
       <div className="flex items-center space-x-4 mb-8">
         <Link
           to="/"
-          className="p-2 text-text-secondary hover:text-primary transition-colors"
+          className="p-2 text-text-secondary dark:text-dark-text-secondary hover:text-primary dark:hover:text-dark-primary transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
         </Link>
-        <h1 className="text-3xl font-bold text-text-primary">Create New Deck</h1>
+        <h1 className="text-3xl font-bold text-text-primary dark:text-dark-text-primary">Create New Deck</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Deck Info */}
-        <div className="bg-card/90 backdrop-blur-sm rounded-xl shadow-lg p-6 border-2 border-primary">
-          <h2 className="text-xl font-medium text-text-primary mb-4">Deck Information</h2>
+        <div className="bg-card/90 dark:bg-dark-card/90 backdrop-blur-sm rounded-xl shadow-lg p-6 border-2 border-primary dark:border-dark-primary">
+          <h2 className="text-xl font-medium text-text-primary dark:text-dark-text-primary mb-4">Deck Information</h2>
           
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-text-primary mb-1">
+              <label className="block text-sm font-medium text-text-primary dark:text-dark-text-primary mb-1">
                 Title *
               </label>
               <input
@@ -104,20 +104,20 @@ const CreateDeck = () => {
                 value={deckData.title}
                 onChange={(e) => handleDeckChange('title', e.target.value)}
                 placeholder="Enter deck title..."
-                className="w-full px-4 py-3 border border-text-secondary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-4 py-3 border border-text-secondary/30 dark:border-dark-text-secondary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-dark-primary bg-background dark:bg-dark-background text-text-primary dark:text-dark-text-primary placeholder-text-secondary dark:placeholder-dark-text-secondary"
                 required
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-text-primary mb-1">
+              <label className="block text-sm font-medium text-text-primary dark:text-dark-text-primary mb-1">
                 Description
               </label>
               <textarea
                 value={deckData.description}
                 onChange={(e) => handleDeckChange('description', e.target.value)}
                 placeholder="Describe what this deck is about..."
-                className="w-full px-4 py-3 border border-text-secondary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-4 py-3 border border-text-secondary/30 dark:border-dark-text-secondary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-dark-primary bg-background dark:bg-dark-background text-text-primary dark:text-dark-text-primary placeholder-text-secondary dark:placeholder-dark-text-secondary"
                 rows="3"
               />
             </div>
@@ -125,13 +125,13 @@ const CreateDeck = () => {
         </div>
 
         {/* Cards */}
-        <div className="bg-card/90 backdrop-blur-sm rounded-xl shadow-lg p-6 border-2 border-primary">
+        <div className="bg-card/90 dark:bg-dark-card/90 backdrop-blur-sm rounded-xl shadow-lg p-6 border-2 border-primary dark:border-dark-primary">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-medium text-text-primary">Cards</h2>
+            <h2 className="text-xl font-medium text-text-primary dark:text-dark-text-primary">Cards</h2>
             <button
               type="button"
               onClick={addCard}
-              className="flex items-center space-x-2 bg-secondary text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-all duration-400 hover:transform hover:scale-105"
+              className="flex items-center space-x-2 bg-secondary dark:bg-dark-secondary text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-all duration-400 hover:transform hover:scale-105"
             >
               <Plus className="w-4 h-4" />
               <span>Add Card</span>
@@ -142,15 +142,15 @@ const CreateDeck = () => {
             {cards.map((card, index) => (
               <div
                 key={card.id}
-                className="border border-text-secondary/20 rounded-lg p-4 bg-card/50"
+                className="border border-text-secondary/20 dark:border-dark-text-secondary/20 rounded-lg p-4 bg-card/50 dark:bg-dark-card/50"
               >
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-medium text-text-primary">Card {index + 1}</h3>
+                  <h3 className="font-medium text-text-primary dark:text-dark-text-primary">Card {index + 1}</h3>
                   {cards.length > 1 && (
                     <button
                       type="button"
                       onClick={() => removeCard(card.id)}
-                      className="text-warning hover:text-warning transition-colors"
+                      className="text-warning dark:text-dark-warning hover:text-warning dark:hover:text-dark-warning transition-colors"
                     >
                       Remove
                     </button>
@@ -159,27 +159,27 @@ const CreateDeck = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-text-primary mb-1">
+                    <label className="block text-sm font-medium text-text-primary dark:text-dark-text-primary mb-1">
                       Front (Question)
                     </label>
                     <textarea
                       value={card.front}
                       onChange={(e) => handleCardChange(card.id, 'front', e.target.value)}
                       placeholder="Enter the question or prompt..."
-                      className="w-full px-3 py-2 border border-text-secondary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full px-3 py-2 border border-text-secondary/30 dark:border-dark-text-secondary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-dark-primary bg-background dark:bg-dark-background text-text-primary dark:text-dark-text-primary placeholder-text-secondary dark:placeholder-dark-text-secondary"
                       rows="3"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-text-primary mb-1">
+                    <label className="block text-sm font-medium text-text-primary dark:text-dark-text-primary mb-1">
                       Back (Answer)
                     </label>
                     <textarea
                       value={card.back}
                       onChange={(e) => handleCardChange(card.id, 'back', e.target.value)}
                       placeholder="Enter the answer..."
-                      className="w-full px-3 py-2 border border-text-secondary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full px-3 py-2 border border-text-secondary/30 dark:border-dark-text-secondary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-dark-primary bg-background dark:bg-dark-background text-text-primary dark:text-dark-text-primary placeholder-text-secondary dark:placeholder-dark-text-secondary"
                       rows="3"
                     />
                   </div>
@@ -194,7 +194,7 @@ const CreateDeck = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="flex items-center space-x-2 bg-primary text-white px-8 py-4 rounded-lg hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-400 hover:transform hover:scale-105"
+            className="flex items-center space-x-2 bg-primary dark:bg-dark-primary text-white px-8 py-4 rounded-lg hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-400 hover:transform hover:scale-105"
           >
             <Save className="w-5 h-5" />
             <span>{isSubmitting ? 'Creating...' : 'Create Deck'}</span>
