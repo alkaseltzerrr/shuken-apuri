@@ -242,18 +242,27 @@ const StudyMode = () => {
       </div>
 
       {/* Mode Selector */}
-      <div className="flex flex-wrap gap-3 mb-6 justify-center">
+      <div className="flex flex-wrap gap-3 mb-6 justify-center relative">
         {sessionStats.total > 0 && (
-          <div className="w-full text-center mb-2">
-            <p className="text-sm text-text-secondary dark:text-dark-text-secondary mb-2">
-              You have started answering. Cancel the session to switch modes.
-            </p>
-            <button
-              onClick={cancelSession}
-              className="text-sm bg-warning dark:bg-dark-warning text-white px-3 py-1 rounded-md hover:bg-opacity-90 transition-colors"
-            >
-              Cancel Session
-            </button>
+          <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 z-10">
+            <div className="relative group animate-slide-down">
+              <div className="absolute inset-0 -m-4 rounded-lg transition-opacity duration-700 ease-out opacity-0 group-hover:opacity-100"></div>
+              <div className="relative transition-all duration-700 ease-out opacity-0 group-hover:opacity-100 transform group-hover:scale-100 scale-95">
+                <div className="bg-card/95 dark:bg-dark-card/95 backdrop-blur-sm rounded-lg shadow-lg border border-warning/20 dark:border-dark-warning/20 px-4 py-3">
+                  <p className="text-sm text-text-secondary dark:text-dark-text-secondary mb-2 transition-all duration-700 ease-out">
+                    You have started answering. Cancel the session to switch modes.
+                  </p>
+                  <div className="flex justify-center">
+                    <button
+                      onClick={cancelSession}
+                      className="text-sm bg-warning dark:bg-dark-warning text-white px-3 py-1 rounded-md hover:bg-opacity-90 transition-all duration-300 hover:transform hover:scale-105 animate-pulse-subtle"
+                    >
+                      Cancel Session
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
         
