@@ -64,13 +64,16 @@ const MultipleChoice = ({
             Question {currentIndex + 1} of {totalCards}
           </span>
           <span className="text-sm font-medium text-text-primary dark:text-dark-text-primary">
-            {Math.round(((currentIndex + 1) / totalCards) * 100)}%
+            {(() => {
+              if (totalCards <= 1) return 100;
+              return Math.round((currentIndex / (totalCards - 1)) * 100);
+            })()}%
           </span>
         </div>
         <div className="w-full bg-card/50 dark:bg-dark-card/50 rounded-full h-2">
           <div 
             className="bg-secondary dark:bg-dark-secondary h-2 rounded-full transition-all duration-700"
-            style={{ width: `${((currentIndex + 1) / totalCards) * 100}%` }}
+            style={{ width: `${totalCards <= 1 ? 100 : (currentIndex / (totalCards - 1)) * 100}%` }}
           ></div>
         </div>
       </div>
