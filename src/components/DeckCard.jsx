@@ -7,17 +7,17 @@ const DeckCard = ({ deck, progress = [], onDelete }) => {
   const stats = getDeckStats(progress);
 
   return (
-    <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-md hover:shadow-lg transition-all duration-500 border-2 border-transparent hover:border-accent-pink animate-slide-up">
+    <div className="bg-card/90 backdrop-blur-sm rounded-xl shadow-md hover:shadow-lg transition-all duration-500 border-2 border-transparent hover:border-primary animate-slide-up">
       <div className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
-            <h3 className="text-xl font-bold text-gray-800 mb-2">
+            <h3 className="text-xl font-bold text-text-primary mb-2">
               {deck.title}
             </h3>
-            <p className="text-gray-600 text-sm mb-3">
+            <p className="text-text-secondary text-sm mb-3">
               {deck.description}
             </p>
-            <div className="flex items-center space-x-4 text-xs text-gray-500">
+            <div className="flex items-center space-x-4 text-xs text-text-secondary">
               <div className="flex items-center space-x-1">
                 <BookOpen className="w-3 h-3" />
                 <span>{deck.cards?.length || 0} cards</span>
@@ -33,7 +33,7 @@ const DeckCard = ({ deck, progress = [], onDelete }) => {
               e.preventDefault();
               onDelete(deck.id);
             }}
-            className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+            className="p-2 text-text-secondary hover:text-warning transition-colors"
           >
             <Trash2 className="w-4 h-4" />
           </button>
@@ -43,19 +43,19 @@ const DeckCard = ({ deck, progress = [], onDelete }) => {
         {stats.total > 0 && (
           <div className="mb-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-600">Progress</span>
-              <span className="text-sm font-medium text-gray-800">{stats.progress}%</span>
+              <span className="text-sm text-text-secondary">Progress</span>
+              <span className="text-sm font-medium text-text-primary">{stats.progress}%</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-text-secondary/20 rounded-full h-2">
               <div 
-                className="bg-accent-green h-2 rounded-full transition-all duration-700"
+                className="bg-secondary h-2 rounded-full transition-all duration-700"
                 style={{ width: `${stats.progress}%` }}
               ></div>
             </div>
-            <div className="flex justify-between text-xs text-gray-500 mt-1">
+            <div className="flex justify-between text-xs text-text-secondary mt-1">
               <span>{stats.reviewed}/{stats.total} reviewed</span>
               {stats.dueForReview > 0 && (
-                <span className="text-accent-yellow font-medium">
+                <span className="text-accent font-medium">
                   {stats.dueForReview} due
                 </span>
               )}
@@ -66,21 +66,21 @@ const DeckCard = ({ deck, progress = [], onDelete }) => {
         <div className="flex space-x-2">
           <Link
             to={`/deck/${deck.id}/study`}
-            className="flex-1 bg-accent-pink text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-all duration-400 flex items-center justify-center space-x-2 hover:transform hover:scale-105"
+            className="flex-1 bg-primary text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-all duration-400 flex items-center justify-center space-x-2 hover:transform hover:scale-105"
           >
             <Play className="w-4 h-4" />
             <span>Study</span>
           </Link>
           <Link
             to={`/deck/${deck.id}`}
-            className="flex-1 bg-accent-blue text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-all duration-400 flex items-center justify-center space-x-2 hover:transform hover:scale-105"
+            className="flex-1 bg-primary text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-all duration-400 flex items-center justify-center space-x-2 hover:transform hover:scale-105"
           >
             <BookOpen className="w-4 h-4" />
             <span>View</span>
           </Link>
           <Link
             to={`/deck/${deck.id}/edit`}
-            className="bg-accent-yellow text-white px-3 py-2 rounded-lg hover:bg-opacity-90 transition-all duration-400 hover:transform hover:scale-105"
+            className="bg-accent text-white px-3 py-2 rounded-lg hover:bg-opacity-90 transition-all duration-400 hover:transform hover:scale-105"
           >
             <Edit className="w-4 h-4" />
           </Link>

@@ -85,11 +85,11 @@ const EditDeck = () => {
       <div className="flex items-center space-x-4 mb-8">
         <Link
           to={`/deck/${deckId}`}
-          className="p-2 text-gray-400 hover:text-accent-blue transition-colors"
+          className="p-2 text-text-secondary hover:text-primary transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
         </Link>
-        <h1 className="text-3xl font-bold text-gray-800">Edit Deck</h1>
+        <h1 className="text-3xl font-bold text-text-primary">Edit Deck</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -97,7 +97,7 @@ const EditDeck = () => {
         <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg p-6 border-2 border-accent-blue">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-text-primary mb-1">
                 Title *
               </label>
               <input
@@ -105,20 +105,20 @@ const EditDeck = () => {
                 value={deckData.title}
                 onChange={(e) => handleDeckChange('title', e.target.value)}
                 placeholder="Enter deck title..."
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-blue"
+                className="w-full px-4 py-3 border border-text-secondary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 required
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-text-primary mb-1">
                 Description
               </label>
               <textarea
                 value={deckData.description}
                 onChange={(e) => handleDeckChange('description', e.target.value)}
                 placeholder="Describe what this deck is about..."
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-blue"
+                className="w-full px-4 py-3 border border-text-secondary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 rows="3"
               />
             </div>
@@ -130,7 +130,7 @@ const EditDeck = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="flex-1 flex items-center justify-center space-x-2 bg-accent-blue text-white px-6 py-3 rounded-lg hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:transform hover:scale-105"
+            className="flex-1 flex items-center justify-center space-x-2 bg-primary text-white px-6 py-3 rounded-lg hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:transform hover:scale-105"
           >
             <Save className="w-4 h-4" />
             <span>{isSubmitting ? 'Saving...' : 'Save Changes'}</span>
@@ -139,7 +139,7 @@ const EditDeck = () => {
           <button
             type="button"
             onClick={handleDelete}
-            className="flex items-center justify-center space-x-2 bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition-all duration-200 hover:transform hover:scale-105"
+            className="flex items-center justify-center space-x-2 bg-warning text-white px-6 py-3 rounded-lg hover:bg-warning transition-all duration-200 hover:transform hover:scale-105"
           >
             <Trash2 className="w-4 h-4" />
             <span>Delete Deck</span>
@@ -147,9 +147,9 @@ const EditDeck = () => {
         </div>
 
         {/* Deck Stats */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4">
-          <h3 className="font-medium text-gray-800 mb-2">Deck Statistics</h3>
-          <div className="text-sm text-gray-600 space-y-1">
+        <div className="bg-card/80 backdrop-blur-sm rounded-lg p-4">
+          <h3 className="font-medium text-text-primary mb-2">Deck Statistics</h3>
+          <div className="text-sm text-text-secondary space-y-1">
             <div>Cards: {deck.cards?.length || 0}</div>
             <div>Created: {new Date(deck.createdAt).toLocaleDateString()}</div>
             <div>Last updated: {new Date(deck.updatedAt).toLocaleDateString()}</div>
@@ -157,7 +157,7 @@ const EditDeck = () => {
         </div>
 
         {/* Note */}
-        <div className="text-sm text-gray-500 text-center">
+        <div className="text-sm text-text-secondary text-center">
           To edit individual cards, go back to the deck view and use the card management tools.
         </div>
       </form>

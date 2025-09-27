@@ -11,7 +11,7 @@ function App() {
   return (
     <DeckProvider>
       <Router>
-        <div className="min-h-screen bg-gradient-to-br from-pastel-blue via-pastel-lavender to-pastel-pink">
+        <div className="min-h-screen bg-background">
           <Header />
           <main className="container mx-auto px-4 py-8">
             <Routes>

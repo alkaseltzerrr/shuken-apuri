@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply bg-gradient-to-br from-pastel-blue via-pastel-lavender to-pastel-pink min-h-screen;
+    @apply bg-background min-h-screen;
   }
 }
 

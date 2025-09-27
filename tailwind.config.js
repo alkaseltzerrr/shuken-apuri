@@ -7,21 +7,16 @@ export default {
   theme: {
     extend: {
       colors: {
-        pastel: {
-          pink: '#FFE4E1',
-          blue: '#E6F3FF',
-          green: '#E8F5E8',
-          yellow: '#FFF8DC',
-          lavender: '#F0E6FF',
-          peach: '#FFE5CC',
-        },
-        accent: {
-          pink: '#FF69B4',
-          blue: '#87CEEB',
-          green: '#98FB98',
-          yellow: '#FFD700',
-          lavender: '#DDA0DD',
-          peach: '#FFAB91',
+        background: '#F6F6F6',
+        card: '#FFFFFF',
+        primary: '#90CAF9',
+        secondary: '#A5D6A7',
+        accent: '#FFCC80',
+        success: '#66BB6A',
+        warning: '#EF9A9A',
+        text: {
+          primary: '#2C2C2C',
+          secondary: '#5A5A5A',
         }
       },
       fontFamily: {

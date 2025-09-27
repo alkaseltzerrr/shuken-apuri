@@ -131,7 +131,7 @@ const StudyMode = () => {
         {!deck && (
           <Link
             to="/"
-            className="text-accent-blue hover:underline"
+            className="text-primary hover:underline"
           >
             Go back to home
           </Link>
@@ -146,38 +146,38 @@ const StudyMode = () => {
   if (showResults) {
     return (
       <div className="max-w-2xl mx-auto text-center animate-fade-in">
-        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg p-8 border-2 border-accent-green">
-          <Trophy className="w-16 h-16 text-accent-yellow mx-auto mb-6" />
+        <div className="bg-card/90 backdrop-blur-sm rounded-xl shadow-lg p-8 border-2 border-secondary">
+          <Trophy className="w-16 h-16 text-accent mx-auto mb-6" />
           
-          <h2 className="text-3xl font-bold text-gray-800 mb-4">
+          <h2 className="text-3xl font-bold text-text-primary mb-4">
             Session Complete! 🎉
           </h2>
           
           <div className="grid grid-cols-3 gap-4 mb-8">
             <div className="text-center">
-              <div className="text-3xl font-bold text-accent-green">
+              <div className="text-3xl font-bold text-secondary">
                 {sessionStats.correct}
               </div>
-              <div className="text-sm text-gray-600">Correct</div>
+              <div className="text-sm text-text-secondary">Correct</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-red-400">
+              <div className="text-3xl font-bold text-warning">
                 {sessionStats.incorrect}
               </div>
-              <div className="text-sm text-gray-600">Incorrect</div>
+              <div className="text-sm text-text-secondary">Incorrect</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-accent-pink">
+              <div className="text-3xl font-bold text-primary">
                 {accuracy}%
               </div>
-              <div className="text-sm text-gray-600">Accuracy</div>
+              <div className="text-sm text-text-secondary">Accuracy</div>
             </div>
           </div>
           
           <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 justify-center">
             <button
               onClick={restartSession}
-              className="flex items-center space-x-2 bg-accent-pink text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-all duration-400 hover:transform hover:scale-105"
+              className="flex items-center space-x-2 bg-primary text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-all duration-400 hover:transform hover:scale-105"
             >
               <RotateCcw className="w-4 h-4" />
               <span>Study Again</span>
@@ -185,7 +185,7 @@ const StudyMode = () => {
             
             <Link
               to={`/deck/${deckId}`}
-              className="flex items-center space-x-2 bg-accent-blue text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-all duration-400 hover:transform hover:scale-105"
+              className="flex items-center space-x-2 bg-primary text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-all duration-400 hover:transform hover:scale-105"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Deck</span>
@@ -193,7 +193,7 @@ const StudyMode = () => {
             
             <Link
               to="/"
-              className="flex items-center space-x-2 bg-accent-green text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-all duration-400 hover:transform hover:scale-105"
+              className="flex items-center space-x-2 bg-secondary text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-all duration-400 hover:transform hover:scale-105"
             >
               <Home className="w-4 h-4" />
               <span>Home</span>
@@ -211,13 +211,13 @@ const StudyMode = () => {
         <div className="flex items-center space-x-4">
           <Link
             to={`/deck/${deckId}`}
-            className="p-2 text-gray-400 hover:text-accent-blue transition-colors"
+            className="p-2 text-text-secondary hover:text-primary transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">{deck.title}</h1>
-            <div className="text-sm text-gray-600">
+            <h1 className="text-2xl font-bold text-text-primary">{deck.title}</h1>
+            <div className="text-sm text-text-secondary">
               Study Session • {sessionStats.correct}/{sessionStats.total} correct ({accuracy}% accuracy)
             </div>
           </div>
@@ -230,8 +230,8 @@ const StudyMode = () => {
           onClick={() => switchMode(STUDY_MODES.FLIP)}
           className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-400 ${
             currentMode === STUDY_MODES.FLIP
-              ? 'bg-accent-blue text-white'
-              : 'bg-white/80 text-gray-700 hover:bg-accent-blue hover:text-white'
+              ? 'bg-primary text-white'
+              : 'bg-card/80 text-text-primary hover:bg-primary hover:text-white'
           }`}
         >
           <RotateCcw className="w-4 h-4" />
@@ -242,8 +242,8 @@ const StudyMode = () => {
           onClick={() => switchMode(STUDY_MODES.MULTIPLE_CHOICE)}
           className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-400 ${
             currentMode === STUDY_MODES.MULTIPLE_CHOICE
-              ? 'bg-accent-green text-white'
-              : 'bg-white/80 text-gray-700 hover:bg-accent-green hover:text-white'
+              ? 'bg-secondary text-white'
+              : 'bg-card/80 text-text-primary hover:bg-secondary hover:text-white'
           }`}
         >
           <Target className="w-4 h-4" />
@@ -254,8 +254,8 @@ const StudyMode = () => {
           onClick={() => switchMode(STUDY_MODES.IDENTIFICATION)}
           className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-400 ${
             currentMode === STUDY_MODES.IDENTIFICATION
-              ? 'bg-accent-yellow text-white'
-              : 'bg-white/80 text-gray-700 hover:bg-accent-yellow hover:text-white'
+              ? 'bg-accent text-white'
+              : 'bg-card/80 text-text-primary hover:bg-accent hover:text-white'
           }`}
         >
           <Type className="w-4 h-4" />

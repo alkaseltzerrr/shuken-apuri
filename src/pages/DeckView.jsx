@@ -79,7 +79,7 @@ const DeckView = () => {
   if (!deck) {
     return (
       <div className="text-center py-12">
-        <div className="text-xl text-gray-600">Loading...</div>
+        <div className="text-xl text-text-secondary">Loading...</div>
       </div>
     );
   }
@@ -92,36 +92,36 @@ const DeckView = () => {
           <div className="flex items-center space-x-4 mb-4">
             <Link
               to="/"
-              className="p-2 text-gray-400 hover:text-accent-blue transition-colors"
+              className="p-2 text-text-secondary hover:text-primary transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
             </Link>
-            <h1 className="text-3xl font-bold text-gray-800">{deck.title}</h1>
+            <h1 className="text-3xl font-bold text-text-primary">{deck.title}</h1>
           </div>
           
           {deck.description && (
-            <p className="text-gray-600 mb-4">{deck.description}</p>
+            <p className="text-text-secondary mb-4">{deck.description}</p>
           )}
 
           {/* Stats */}
           {stats && stats.total > 0 && (
-            <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 mb-4">
+            <div className="bg-card/80 backdrop-blur-sm rounded-lg p-4 mb-4">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                 <div>
-                  <div className="text-2xl font-bold text-accent-blue">{stats.total}</div>
-                  <div className="text-sm text-gray-600">Total Cards</div>
+                  <div className="text-2xl font-bold text-primary">{stats.total}</div>
+                  <div className="text-sm text-text-secondary">Total Cards</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-accent-green">{stats.reviewed}</div>
-                  <div className="text-sm text-gray-600">Reviewed</div>
+                  <div className="text-2xl font-bold text-secondary">{stats.reviewed}</div>
+                  <div className="text-sm text-text-secondary">Reviewed</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-accent-yellow">{stats.dueForReview}</div>
-                  <div className="text-sm text-gray-600">Due Today</div>
+                  <div className="text-2xl font-bold text-accent">{stats.dueForReview}</div>
+                  <div className="text-sm text-text-secondary">Due Today</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-accent-pink">{stats.accuracy}%</div>
-                  <div className="text-sm text-gray-600">Accuracy</div>
+                  <div className="text-2xl font-bold text-primary">{stats.accuracy}%</div>
+                  <div className="text-sm text-text-secondary">Accuracy</div>
                 </div>
               </div>
             </div>
@@ -131,7 +131,7 @@ const DeckView = () => {
         <div className="flex space-x-2">
           <Link
             to={`/deck/${deckId}/study`}
-            className="flex items-center space-x-2 bg-accent-pink text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-all duration-200 hover:transform hover:scale-105"
+            className="flex items-center space-x-2 bg-primary text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-all duration-200 hover:transform hover:scale-105"
           >
             <Play className="w-4 h-4" />
             <span>Study</span>
@@ -139,7 +139,7 @@ const DeckView = () => {
           
           <Link
             to={`/deck/${deckId}/edit`}
-            className="flex items-center space-x-2 bg-accent-blue text-white px-4 py-3 rounded-lg hover:bg-opacity-90 transition-all duration-200 hover:transform hover:scale-105"
+            className="flex items-center space-x-2 bg-primary text-white px-4 py-3 rounded-lg hover:bg-opacity-90 transition-all duration-200 hover:transform hover:scale-105"
           >
             <Edit className="w-4 h-4" />
           </Link>
@@ -148,36 +148,36 @@ const DeckView = () => {
 
       {/* Add/Edit Card Form */}
       {(showAddCard || editingCard) && (
-        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg p-6 mb-6 border-2 border-accent-green">
-          <h3 className="text-lg font-medium text-gray-800 mb-4">
+        <div className="bg-card/90 backdrop-blur-sm rounded-xl shadow-lg p-6 mb-6 border-2 border-secondary">
+          <h3 className="text-lg font-medium text-text-primary mb-4">
             {editingCard ? 'Edit Card' : 'Add New Card'}
           </h3>
           
           <form onSubmit={editingCard ? handleUpdateCard : handleAddCard}>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-text-primary mb-1">
                   Front (Question)
                 </label>
                 <textarea
                   value={cardForm.front}
                   onChange={(e) => setCardForm(prev => ({ ...prev, front: e.target.value }))}
                   placeholder="Enter the question or prompt..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-green"
+                  className="w-full px-3 py-2 border border-text-secondary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
                   rows="3"
                   required
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-text-primary mb-1">
                   Back (Answer)
                 </label>
                 <textarea
                   value={cardForm.back}
                   onChange={(e) => setCardForm(prev => ({ ...prev, back: e.target.value }))}
                   placeholder="Enter the answer..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-green"
+                  className="w-full px-3 py-2 border border-text-secondary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
                   rows="3"
                   required
                 />
@@ -187,14 +187,14 @@ const DeckView = () => {
             <div className="flex space-x-3 mt-6">
               <button
                 type="submit"
-                className="bg-accent-green text-white px-6 py-2 rounded-lg hover:bg-opacity-90 transition-colors"
+                className="bg-secondary text-white px-6 py-2 rounded-lg hover:bg-opacity-90 transition-colors"
               >
                 {editingCard ? 'Update Card' : 'Add Card'}
               </button>
               <button
                 type="button"
                 onClick={cancelEdit}
-                className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition-colors"
+                className="bg-text-secondary/50 text-text-primary px-6 py-2 rounded-lg hover:bg-text-secondary/70 transition-colors"
               >
                 Cancel
               </button>
@@ -208,7 +208,7 @@ const DeckView = () => {
         <div className="mb-6">
           <button
             onClick={() => setShowAddCard(true)}
-            className="flex items-center space-x-2 bg-accent-green text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-all duration-200 hover:transform hover:scale-105"
+            className="flex items-center space-x-2 bg-secondary text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-all duration-200 hover:transform hover:scale-105"
           >
             <Plus className="w-4 h-4" />
             <span>Add Card</span>
@@ -228,11 +228,11 @@ const DeckView = () => {
             />
           ))
         ) : (
-          <div className="text-center py-12 bg-white/50 backdrop-blur-sm rounded-xl">
-            <div className="text-gray-500 mb-4">No cards in this deck yet.</div>
+          <div className="text-center py-12 bg-card/50 backdrop-blur-sm rounded-xl">
+            <div className="text-text-secondary mb-4">No cards in this deck yet.</div>
             <button
               onClick={() => setShowAddCard(true)}
-              className="bg-accent-green text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-all duration-200"
+              className="bg-secondary text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-all duration-200"
             >
               Add Your First Card
             </button>
