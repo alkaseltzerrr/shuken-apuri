@@ -116,10 +116,24 @@ const StudyMode = () => {
   };
 
   const switchMode = (mode) => {
+    // Prevent switching if user has already started answering
+    if (sessionStats.total > 0) {
+      return;
+    }
     setCurrentMode(mode);
     setCurrentCardIndex(0);
     setSessionStats({ correct: 0, incorrect: 0, total: 0 });
     setShowResults(false);
+  };
+
+  const cancelSession = () => {
+    if (window.confirm('Are you sure you want to cancel the current session? Your progress will be lost.')) {
+      setCurrentCardIndex(0);
+      setSessionStats({ correct: 0, incorrect: 0, total: 0 });
+      setShowResults(false);
+      // Shuffle cards again
+      setStudyCards(prev => [...prev].sort(() => Math.random() - 0.5));
+    }
   };
 
   if (!deck || studyCards.length === 0) {
@@ -229,11 +243,28 @@ const StudyMode = () => {
 
       {/* Mode Selector */}
       <div className="flex flex-wrap gap-3 mb-6 justify-center">
+        {sessionStats.total > 0 && (
+          <div className="w-full text-center mb-2">
+            <p className="text-sm text-text-secondary dark:text-dark-text-secondary mb-2">
+              You have started answering. Cancel the session to switch modes.
+            </p>
+            <button
+              onClick={cancelSession}
+              className="text-sm bg-warning dark:bg-dark-warning text-white px-3 py-1 rounded-md hover:bg-opacity-90 transition-colors"
+            >
+              Cancel Session
+            </button>
+          </div>
+        )}
+        
         <button
           onClick={() => switchMode(STUDY_MODES.FLIP)}
+          disabled={sessionStats.total > 0 && currentMode !== STUDY_MODES.FLIP}
           className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-400 ${
             currentMode === STUDY_MODES.FLIP
               ? 'bg-primary dark:bg-dark-primary text-white'
+              : sessionStats.total > 0
+              ? 'bg-card/50 dark:bg-dark-card/50 text-text-secondary dark:text-dark-text-secondary cursor-not-allowed opacity-50'
               : 'bg-card/80 dark:bg-dark-card/80 text-text-primary dark:text-dark-text-primary hover:bg-primary dark:hover:bg-dark-primary hover:text-white'
           }`}
         >
@@ -243,9 +274,12 @@ const StudyMode = () => {
         
         <button
           onClick={() => switchMode(STUDY_MODES.MULTIPLE_CHOICE)}
+          disabled={sessionStats.total > 0 && currentMode !== STUDY_MODES.MULTIPLE_CHOICE}
           className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-400 ${
             currentMode === STUDY_MODES.MULTIPLE_CHOICE
               ? 'bg-secondary dark:bg-dark-secondary text-white'
+              : sessionStats.total > 0
+              ? 'bg-card/50 dark:bg-dark-card/50 text-text-secondary dark:text-dark-text-secondary cursor-not-allowed opacity-50'
               : 'bg-card/80 dark:bg-dark-card/80 text-text-primary dark:text-dark-text-primary hover:bg-secondary dark:hover:bg-dark-secondary hover:text-white'
           }`}
         >
@@ -255,9 +289,12 @@ const StudyMode = () => {
         
         <button
           onClick={() => switchMode(STUDY_MODES.IDENTIFICATION)}
+          disabled={sessionStats.total > 0 && currentMode !== STUDY_MODES.IDENTIFICATION}
           className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-400 ${
             currentMode === STUDY_MODES.IDENTIFICATION
               ? 'bg-accent dark:bg-dark-accent text-white'
+              : sessionStats.total > 0
+              ? 'bg-card/50 dark:bg-dark-card/50 text-text-secondary dark:text-dark-text-secondary cursor-not-allowed opacity-50'
               : 'bg-card/80 dark:bg-dark-card/80 text-text-primary dark:text-dark-text-primary hover:bg-accent dark:hover:bg-dark-accent hover:text-white'
           }`}
         >
