@@ -29,16 +29,16 @@ const FlipCard = ({ card, onNext, onPrevious, currentIndex, totalCards }) => {
       {/* Progress */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-text-secondary">
+          <span className="text-sm text-text-secondary dark:text-dark-text-secondary">
             Card {currentIndex + 1} of {totalCards}
           </span>
-          <span className="text-sm font-medium text-text-primary">
+          <span className="text-sm font-medium text-text-primary dark:text-dark-text-primary">
             {Math.round(((currentIndex + 1) / totalCards) * 100)}%
           </span>
         </div>
-        <div className="w-full bg-card/50 rounded-full h-2">
+        <div className="w-full bg-card/50 dark:bg-dark-card/50 rounded-full h-2">
           <div 
-            className="bg-primary h-2 rounded-full transition-all duration-700"
+            className="bg-primary dark:bg-dark-primary h-2 rounded-full transition-all duration-700"
             style={{ width: `${((currentIndex + 1) / totalCards) * 100}%` }}
           ></div>
         </div>
@@ -51,21 +51,21 @@ const FlipCard = ({ card, onNext, onPrevious, currentIndex, totalCards }) => {
       >
         <div className={`absolute inset-0 w-full h-full transition-transform duration-500 ease-out transform-style-preserve-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
           {/* Front */}
-          <div className="absolute inset-0 w-full h-full bg-card/95 backdrop-blur-sm rounded-xl shadow-lg border-2 border-primary backface-hidden flex items-center justify-center p-8">
+          <div className="absolute inset-0 w-full h-full bg-card/95 dark:bg-dark-card/95 backdrop-blur-sm rounded-xl shadow-lg border-2 border-primary dark:border-dark-primary backface-hidden flex items-center justify-center p-8">
             <div className="text-center">
-              <div className="text-2xl md:text-3xl font-medium text-text-primary mb-4">
+              <div className="text-2xl md:text-3xl font-medium text-text-primary dark:text-dark-text-primary mb-4">
                 {card.front}
               </div>
-              <div className="text-sm text-text-secondary">
+              <div className="text-sm text-text-secondary dark:text-dark-text-secondary">
                 Click or press Space to reveal answer
               </div>
             </div>
           </div>
 
           {/* Back */}
-          <div className="absolute inset-0 w-full h-full bg-card/95 backdrop-blur-sm rounded-xl shadow-lg border-2 border-secondary backface-hidden rotate-y-180 flex items-center justify-center p-8">
+          <div className="absolute inset-0 w-full h-full bg-card/95 dark:bg-dark-card/95 backdrop-blur-sm rounded-xl shadow-lg border-2 border-secondary dark:border-dark-secondary backface-hidden rotate-y-180 flex items-center justify-center p-8">
             <div className="text-center">
-              <div className="text-xl md:text-2xl text-text-primary whitespace-pre-wrap">
+              <div className="text-xl md:text-2xl text-text-primary dark:text-dark-text-primary whitespace-pre-wrap">
                 {card.back}
               </div>
             </div>
@@ -78,7 +78,7 @@ const FlipCard = ({ card, onNext, onPrevious, currentIndex, totalCards }) => {
         <button
           onClick={onPrevious}
           disabled={currentIndex === 0}
-          className="flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-400"
+          className="flex items-center space-x-2 px-4 py-2 bg-primary dark:bg-dark-primary text-white rounded-lg hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-400"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Previous</span>
@@ -86,7 +86,7 @@ const FlipCard = ({ card, onNext, onPrevious, currentIndex, totalCards }) => {
 
         <button
           onClick={() => setIsFlipped(!isFlipped)}
-          className="flex items-center space-x-2 px-6 py-2 bg-accent text-white rounded-lg hover:bg-opacity-90 transition-all duration-400"
+          className="flex items-center space-x-2 px-6 py-2 bg-accent dark:bg-dark-accent text-white rounded-lg hover:bg-opacity-90 transition-all duration-400"
         >
           <RotateCcw className="w-4 h-4" />
           <span>Flip</span>
@@ -95,7 +95,7 @@ const FlipCard = ({ card, onNext, onPrevious, currentIndex, totalCards }) => {
         <button
           onClick={onNext}
           disabled={currentIndex === totalCards - 1}
-          className="flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-400"
+          className="flex items-center space-x-2 px-4 py-2 bg-primary dark:bg-dark-primary text-white rounded-lg hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-400"
         >
           <span>Next</span>
           <ArrowRight className="w-4 h-4" />

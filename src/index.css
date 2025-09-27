@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply bg-background min-h-screen;
+    @apply bg-background dark:bg-dark-background min-h-screen transition-colors duration-300;
   }
 }
 

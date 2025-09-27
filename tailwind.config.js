@@ -4,9 +4,11 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
+        // Light mode colors
         background: '#F6F6F6',
         card: '#FFFFFF',
         primary: '#90CAF9',
@@ -17,6 +19,20 @@ export default {
         text: {
           primary: '#2C2C2C',
           secondary: '#5A5A5A',
+        },
+        // Dark mode colors
+        dark: {
+          background: '#121212',
+          card: '#1E1E1E',
+          primary: '#64B5F6',
+          secondary: '#81C784',
+          accent: '#FFB74D',
+          success: '#43A047',
+          warning: '#E57373',
+          text: {
+            primary: '#E0E0E0',
+            secondary: '#9E9E9E',
+          }
         }
       },
       fontFamily: {

@@ -39,10 +39,10 @@ const Home = () => {
     <div className="animate-fade-in">
       {/* Header */}
       <div className="text-center mb-8">
-        <h1 className="text-4xl md:text-5xl font-bold text-text-primary mb-4 font-japanese">
+        <h1 className="text-4xl md:text-5xl font-bold text-text-primary dark:text-dark-text-primary mb-4 font-japanese">
           集験アプリ
         </h1>
-        <p className="text-xl text-text-secondary mb-6">
+        <p className="text-xl text-text-secondary dark:text-dark-text-secondary mb-6">
           Your friendly flashcard companion for effective learning
         </p>
         
@@ -50,13 +50,13 @@ const Home = () => {
         <div className="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4">
           <Link
             to="/create"
-            className="flex items-center space-x-2 bg-primary text-white px-6 py-3 rounded-full hover:bg-opacity-90 transition-all duration-200 hover:transform hover:scale-105 shadow-md"
+            className="flex items-center space-x-2 bg-primary dark:bg-dark-primary text-white px-6 py-3 rounded-full hover:bg-opacity-90 transition-all duration-200 hover:transform hover:scale-105 shadow-md"
           >
             <Plus className="w-5 h-5" />
             <span>Create New Deck</span>
           </Link>
           
-          <label className="flex items-center space-x-2 bg-primary text-white px-6 py-3 rounded-full hover:bg-opacity-90 transition-all duration-200 hover:transform hover:scale-105 shadow-md cursor-pointer">
+          <label className="flex items-center space-x-2 bg-primary dark:bg-dark-primary text-white px-6 py-3 rounded-full hover:bg-opacity-90 transition-all duration-200 hover:transform hover:scale-105 shadow-md cursor-pointer">
             <Upload className="w-5 h-5" />
             <span>Import Deck</span>
             <input
@@ -72,16 +72,16 @@ const Home = () => {
       {/* Decks Grid */}
       {decks.length === 0 ? (
         <div className="text-center py-12">
-          <BookOpen className="w-16 h-16 text-text-secondary mx-auto mb-4" />
-          <h3 className="text-xl font-medium text-text-secondary mb-2">
+          <BookOpen className="w-16 h-16 text-text-secondary dark:text-dark-text-secondary mx-auto mb-4" />
+          <h3 className="text-xl font-medium text-text-secondary dark:text-dark-text-secondary mb-2">
             No decks yet
           </h3>
-          <p className="text-text-secondary mb-6">
+          <p className="text-text-secondary dark:text-dark-text-secondary mb-6">
             Create your first deck to start learning!
           </p>
           <Link
             to="/create"
-            className="inline-flex items-center space-x-2 bg-secondary text-white px-6 py-3 rounded-full hover:bg-opacity-90 transition-all duration-200 hover:transform hover:scale-105"
+            className="inline-flex items-center space-x-2 bg-secondary dark:bg-dark-secondary text-white px-6 py-3 rounded-full hover:bg-opacity-90 transition-all duration-200 hover:transform hover:scale-105"
           >
             <Plus className="w-5 h-5" />
             <span>Create Deck</span>
