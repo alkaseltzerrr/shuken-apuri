@@ -100,7 +100,7 @@ const Home = () => {
               {/* Export button */}
               <button
                 onClick={() => handleExport(deck)}
-                className="absolute top-4 right-12 p-2 text-text-secondary hover:text-primary transition-colors bg-card/80 rounded-full"
+                className="absolute top-4 right-4 p-2 text-text-secondary dark:text-dark-text-secondary hover:text-primary dark:hover:text-dark-primary transition-colors bg-card/80 dark:bg-dark-card/80 backdrop-blur-sm rounded-full"
                 title="Export deck"
               >
                 <Upload className="w-4 h-4 transform rotate-180" />
@@ -113,28 +113,28 @@ const Home = () => {
       {/* Stats Summary */}
       {decks.length > 0 && (
         <div className="mt-12 text-center">
-          <div className="bg-card/80 backdrop-blur-sm rounded-xl shadow-md p-6 inline-block">
-            <h3 className="text-lg font-medium text-text-primary mb-2">
+          <div className="bg-card/80 dark:bg-dark-card/80 backdrop-blur-sm rounded-xl shadow-md p-6 inline-block">
+            <h3 className="text-lg font-medium text-text-primary dark:text-dark-text-primary mb-2">
               Learning Progress
             </h3>
             <div className="flex items-center space-x-8 text-sm">
               <div>
-                <div className="text-2xl font-bold text-primary">
+                <div className="text-2xl font-bold text-primary dark:text-dark-primary">
                   {decks.length}
                 </div>
-                <div className="text-text-secondary">Decks</div>
+                <div className="text-text-secondary dark:text-dark-text-secondary">Decks</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-primary">
+                <div className="text-2xl font-bold text-primary dark:text-dark-primary">
                   {decks.reduce((total, deck) => total + (deck.cards?.length || 0), 0)}
                 </div>
-                <div className="text-text-secondary">Cards</div>
+                <div className="text-text-secondary dark:text-dark-text-secondary">Cards</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-secondary">
+                <div className="text-2xl font-bold text-secondary dark:text-dark-secondary">
                   {Object.keys(progress).length}
                 </div>
-                <div className="text-text-secondary">In Progress</div>
+                <div className="text-text-secondary dark:text-dark-text-secondary">In Progress</div>
               </div>
             </div>
           </div>

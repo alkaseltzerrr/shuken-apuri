@@ -7,10 +7,10 @@ const DeckCard = ({ deck, progress = [], onDelete }) => {
   const stats = getDeckStats(progress);
 
   return (
-    <div className="bg-card/90 dark:bg-dark-card/90 backdrop-blur-sm rounded-xl shadow-md hover:shadow-lg transition-all duration-500 border-2 border-transparent hover:border-primary dark:hover:border-dark-primary animate-slide-up">
+    <div className="bg-card/90 dark:bg-dark-card/90 backdrop-blur-sm rounded-xl shadow-md hover:shadow-lg transition-all duration-500 border-2 border-transparent hover:border-primary dark:hover:border-dark-primary animate-slide-up relative">
       <div className="p-6">
         <div className="flex items-start justify-between mb-4">
-          <div className="flex-1">
+          <div className="flex-1 pr-8">
             <h3 className="text-xl font-bold text-text-primary dark:text-dark-text-primary mb-2">
               {deck.title}
             </h3>
@@ -33,7 +33,7 @@ const DeckCard = ({ deck, progress = [], onDelete }) => {
               e.preventDefault();
               onDelete(deck.id);
             }}
-            className="p-2 text-text-secondary dark:text-dark-text-secondary hover:text-warning dark:hover:text-dark-warning transition-colors"
+            className="absolute top-4 right-12 p-2 text-text-secondary dark:text-dark-text-secondary hover:text-warning dark:hover:text-dark-warning transition-colors bg-card/80 dark:bg-dark-card/80 backdrop-blur-sm rounded-full"
           >
             <Trash2 className="w-4 h-4" />
           </button>
