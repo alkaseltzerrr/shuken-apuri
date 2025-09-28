@@ -32,6 +32,9 @@ const StudyMode = () => {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showReturnModal, setShowReturnModal] = useState(false);
   const returnRef = useRef(null);
+  const popoverFirstButtonRef = useRef(null);
+  const popoverSecondButtonRef = useRef(null);
+  const previousFocusRef = useRef(null);
 
   useEffect(() => {
     const foundDeck = decks.find(d => d.id === deckId);
@@ -81,6 +84,37 @@ const StudyMode = () => {
     };
     window.addEventListener('mousedown', onClick);
     return () => window.removeEventListener('mousedown', onClick);
+  }, [showReturnModal]);
+
+  // focus management & keyboard navigation for popover
+  useEffect(() => {
+    if (showReturnModal) {
+      previousFocusRef.current = document.activeElement;
+      setTimeout(() => popoverFirstButtonRef.current?.focus(), 0);
+
+      const onKey = (e) => {
+        if (e.key === 'Escape') {
+          setShowReturnModal(false);
+          previousFocusRef.current?.focus?.();
+        }
+        if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+          e.preventDefault();
+          popoverSecondButtonRef.current?.focus();
+        }
+        if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+          e.preventDefault();
+          popoverFirstButtonRef.current?.focus();
+        }
+      };
+
+      window.addEventListener('keydown', onKey);
+      return () => {
+        window.removeEventListener('keydown', onKey);
+      };
+    } else {
+      // when popover closes, restore focus
+      previousFocusRef.current?.focus?.();
+    }
   }, [showReturnModal]);
 
   const handleAnswer = (isCorrect) => {
@@ -263,6 +297,8 @@ const StudyMode = () => {
                 <div className="bg-card/95 dark:bg-dark-card/95 backdrop-blur-sm rounded-md shadow-lg border border-gray-200/20 dark:border-dark-card/30 p-1 w-24 animate-slide-down transform origin-right">
                   <div className="flex flex-col gap-2">
                     <button
+                      ref={popoverFirstButtonRef}
+                      role="menuitem"
                       onClick={() => { setShowReturnModal(false); navigate('/'); }}
                       aria-label="Home"
                       className="w-full flex items-center justify-center p-1.5 rounded-md bg-primary dark:bg-dark-primary text-white hover:opacity-95"
@@ -270,6 +306,8 @@ const StudyMode = () => {
                       <Home className="w-5 h-5" />
                     </button>
                     <button
+                      ref={popoverSecondButtonRef}
+                      role="menuitem"
                       onClick={() => { setShowReturnModal(false); navigate(`/deck/${deckId}`); }}
                       aria-label="Deck"
                       className="w-full flex items-center justify-center p-1.5 rounded-md bg-secondary dark:bg-dark-secondary text-white hover:opacity-95"
