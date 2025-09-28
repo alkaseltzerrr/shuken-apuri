@@ -259,19 +259,19 @@ const StudyMode = () => {
                 {/* caret on right edge */}
                 <div className="absolute -right-1 top-1/2 transform -translate-y-1/2 w-3 h-3 rotate-45 bg-card/95 dark:bg-dark-card/95 border border-gray-200/20 dark:border-dark-card/30" />
 
-                <div className="bg-card/95 dark:bg-dark-card/95 backdrop-blur-sm rounded-md shadow-lg border border-gray-200/20 dark:border-dark-card/30 p-1 w-36 animate-slide-down transform origin-right">
+                <div className="bg-card/95 dark:bg-dark-card/95 backdrop-blur-sm rounded-md shadow-lg border border-gray-200/20 dark:border-dark-card/30 p-1 w-24 animate-slide-down transform origin-right">
                   <div className="flex flex-col gap-2">
                     <button
                       onClick={() => { setShowReturnModal(false); navigate('/'); }}
                       aria-label="Home"
-                      className="w-full flex items-center justify-center p-2 rounded-md bg-primary dark:bg-dark-primary text-white hover:opacity-95"
+                      className="w-full flex items-center justify-center p-1.5 rounded-md bg-primary dark:bg-dark-primary text-white hover:opacity-95"
                     >
                       <Home className="w-5 h-5" />
                     </button>
                     <button
                       onClick={() => { setShowReturnModal(false); navigate(`/deck/${deckId}`); }}
                       aria-label="Deck"
-                      className="w-full flex items-center justify-center p-2 rounded-md bg-secondary dark:bg-dark-secondary text-white hover:opacity-95"
+                      className="w-full flex items-center justify-center p-1.5 rounded-md bg-secondary dark:bg-dark-secondary text-white hover:opacity-95"
                     >
                       <BookOpen className="w-5 h-5" />
                     </button>
