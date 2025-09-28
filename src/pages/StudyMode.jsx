@@ -246,6 +246,7 @@ const StudyMode = () => {
           <div className="relative" ref={returnRef}>
             <button
               onClick={() => setShowReturnModal(prev => !prev)}
+              onDoubleClick={() => navigate('/')}
               className="p-2 text-text-secondary dark:text-dark-text-secondary hover:text-primary dark:hover:text-dark-primary transition-colors"
               aria-haspopup="true"
               aria-expanded={showReturnModal}
