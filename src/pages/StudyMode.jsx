@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useDeck } from '../context/DeckContext';
-import { ArrowLeft, RotateCcw, Target, Type, Trophy, Home } from 'lucide-react';
+import { ArrowLeft, RotateCcw, Target, Type, Trophy, Home, BookOpen } from 'lucide-react';
 import FlipCard from '../components/FlipCard';
 import MultipleChoice from '../components/MultipleChoice';
 import IdentificationMode from '../components/IdentificationMode';
@@ -31,6 +31,7 @@ const StudyMode = () => {
   const [deckProgress, setDeckProgress] = useState([]);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showReturnModal, setShowReturnModal] = useState(false);
+  const returnRef = useRef(null);
 
   useEffect(() => {
     const foundDeck = decks.find(d => d.id === deckId);
@@ -70,6 +71,17 @@ const StudyMode = () => {
       navigate('/');
     }
   }, [deckId, decks, progress, navigate]);
+
+  // click outside handler for return popover
+  useEffect(() => {
+    const onClick = (e) => {
+      if (showReturnModal && returnRef.current && !returnRef.current.contains(e.target)) {
+        setShowReturnModal(false);
+      }
+    };
+    window.addEventListener('mousedown', onClick);
+    return () => window.removeEventListener('mousedown', onClick);
+  }, [showReturnModal]);
 
   const handleAnswer = (isCorrect) => {
     const currentCard = studyCards[currentCardIndex];
@@ -231,12 +243,44 @@ const StudyMode = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-4">
-          <button
-            onClick={() => setShowReturnModal(true)}
-            className="p-2 text-text-secondary dark:text-dark-text-secondary hover:text-primary dark:hover:text-dark-primary transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
+          <div className="relative" ref={returnRef}>
+            <button
+              onClick={() => setShowReturnModal(prev => !prev)}
+              className="p-2 text-text-secondary dark:text-dark-text-secondary hover:text-primary dark:hover:text-dark-primary transition-colors"
+              aria-haspopup="true"
+              aria-expanded={showReturnModal}
+              id="return-button"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            {/* Compact popover anchored to the arrow button */}
+            {showReturnModal && (
+              <div className="absolute right-full top-[54%] transform -translate-y-1/2 mr-0 z-50">
+                {/* caret on right edge */}
+                <div className="absolute -right-1 top-1/2 transform -translate-y-1/2 w-3 h-3 rotate-45 bg-card/95 dark:bg-dark-card/95 border border-gray-200/20 dark:border-dark-card/30" />
+
+                <div className="bg-card/95 dark:bg-dark-card/95 backdrop-blur-sm rounded-md shadow-lg border border-gray-200/20 dark:border-dark-card/30 p-1 w-36 animate-slide-down transform origin-right">
+                  <div className="text-xs text-text-primary dark:text-dark-text-primary font-medium mb-1 text-center">Return to</div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => { setShowReturnModal(false); navigate('/'); }}
+                      className="flex flex-col items-center justify-center p-2 rounded-md bg-secondary dark:bg-dark-secondary text-white hover:opacity-95"
+                    >
+                      <Home className="w-5 h-5 mb-1" />
+                      <span className="text-xs">Home</span>
+                    </button>
+                    <button
+                      onClick={() => { setShowReturnModal(false); navigate(`/deck/${deckId}`); }}
+                      className="flex flex-col items-center justify-center p-2 rounded-md bg-primary dark:bg-dark-primary text-white hover:opacity-95"
+                    >
+                      <BookOpen className="w-5 h-5 mb-1" />
+                      <span className="text-xs">Deck</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
           <div>
             <h1 className="text-2xl font-bold text-text-primary dark:text-dark-text-primary">{deck.title}</h1>
             <div className="text-sm text-text-secondary dark:text-dark-text-secondary">
@@ -361,31 +405,7 @@ const StudyMode = () => {
           onCancel={closeCancelModal}
         />
       )}
-      {showReturnModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setShowReturnModal(false)} />
-          <div className="relative w-full max-w-sm mx-4">
-            <div className="bg-card/95 dark:bg-dark-card/95 rounded-lg shadow-xl p-6">
-              <h3 className="text-lg font-semibold text-text-primary dark:text-dark-text-primary mb-2">Return to</h3>
-              <p className="text-sm text-text-secondary dark:text-dark-text-secondary mb-4">Where would you like to go?</p>
-              <div className="flex justify-center space-x-3">
-                <button
-                  onClick={() => { setShowReturnModal(false); navigate('/'); }}
-                  className="px-4 py-2 bg-secondary dark:bg-dark-secondary text-white rounded-md"
-                >
-                  Home
-                </button>
-                <button
-                  onClick={() => { setShowReturnModal(false); navigate(`/deck/${deckId}`); }}
-                  className="px-4 py-2 bg-primary dark:bg-dark-primary text-white rounded-md"
-                >
-                  Deck
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* small anchored popover is used instead of a full-screen modal */}
     </div>
   );
 };
