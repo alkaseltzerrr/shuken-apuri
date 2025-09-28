@@ -263,17 +263,17 @@ const StudyMode = () => {
                   <div className="flex flex-col gap-2">
                     <button
                       onClick={() => { setShowReturnModal(false); navigate('/'); }}
-                      className="w-full flex items-center justify-center space-x-2 p-2 rounded-md bg-secondary dark:bg-dark-secondary text-white hover:opacity-95"
+                      aria-label="Home"
+                      className="w-full flex items-center justify-center p-2 rounded-md bg-primary dark:bg-dark-primary text-white hover:opacity-95"
                     >
                       <Home className="w-5 h-5" />
-                      <span className="text-sm">Home</span>
                     </button>
                     <button
                       onClick={() => { setShowReturnModal(false); navigate(`/deck/${deckId}`); }}
-                      className="w-full flex items-center justify-center space-x-2 p-2 rounded-md bg-primary dark:bg-dark-primary text-white hover:opacity-95"
+                      aria-label="Deck"
+                      className="w-full flex items-center justify-center p-2 rounded-md bg-secondary dark:bg-dark-secondary text-white hover:opacity-95"
                     >
                       <BookOpen className="w-5 h-5" />
-                      <span className="text-sm">Deck</span>
                     </button>
                   </div>
                 </div>
