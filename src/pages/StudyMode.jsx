@@ -260,7 +260,6 @@ const StudyMode = () => {
                 <div className="absolute -right-1 top-1/2 transform -translate-y-1/2 w-3 h-3 rotate-45 bg-card/95 dark:bg-dark-card/95 border border-gray-200/20 dark:border-dark-card/30" />
 
                 <div className="bg-card/95 dark:bg-dark-card/95 backdrop-blur-sm rounded-md shadow-lg border border-gray-200/20 dark:border-dark-card/30 p-1 w-36 animate-slide-down transform origin-right">
-                  <div className="text-xs text-text-primary dark:text-dark-text-primary font-medium mb-1 text-center">Return to</div>
                   <div className="flex flex-col gap-2">
                     <button
                       onClick={() => { setShowReturnModal(false); navigate('/'); }}
