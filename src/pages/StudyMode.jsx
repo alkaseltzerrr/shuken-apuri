@@ -261,20 +261,20 @@ const StudyMode = () => {
 
                 <div className="bg-card/95 dark:bg-dark-card/95 backdrop-blur-sm rounded-md shadow-lg border border-gray-200/20 dark:border-dark-card/30 p-1 w-36 animate-slide-down transform origin-right">
                   <div className="text-xs text-text-primary dark:text-dark-text-primary font-medium mb-1 text-center">Return to</div>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="flex flex-col gap-2">
                     <button
                       onClick={() => { setShowReturnModal(false); navigate('/'); }}
-                      className="flex flex-col items-center justify-center p-2 rounded-md bg-secondary dark:bg-dark-secondary text-white hover:opacity-95"
+                      className="w-full flex items-center justify-center space-x-2 p-2 rounded-md bg-secondary dark:bg-dark-secondary text-white hover:opacity-95"
                     >
-                      <Home className="w-5 h-5 mb-1" />
-                      <span className="text-xs">Home</span>
+                      <Home className="w-5 h-5" />
+                      <span className="text-sm">Home</span>
                     </button>
                     <button
                       onClick={() => { setShowReturnModal(false); navigate(`/deck/${deckId}`); }}
-                      className="flex flex-col items-center justify-center p-2 rounded-md bg-primary dark:bg-dark-primary text-white hover:opacity-95"
+                      className="w-full flex items-center justify-center space-x-2 p-2 rounded-md bg-primary dark:bg-dark-primary text-white hover:opacity-95"
                     >
-                      <BookOpen className="w-5 h-5 mb-1" />
-                      <span className="text-xs">Deck</span>
+                      <BookOpen className="w-5 h-5" />
+                      <span className="text-sm">Deck</span>
                     </button>
                   </div>
                 </div>
