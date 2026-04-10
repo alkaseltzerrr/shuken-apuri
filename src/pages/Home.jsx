@@ -1,11 +1,38 @@
 import { Link } from 'react-router-dom';
 import { useDeck } from '../context/DeckContext';
-import { Plus, Upload, BookOpen } from 'lucide-react';
+import { Plus, Upload, BookOpen, CalendarDays, Play } from 'lucide-react';
 import DeckCard from '../components/DeckCard';
 import { exportDeck, importDeck } from '../utils/helpers';
 
 const Home = () => {
   const { decks, deleteDeck, createDeck, progress } = useDeck();
+  const now = new Date();
+
+  const deckQueues = decks
+    .map((deck) => {
+      const deckProgress = progress[deck.id] || [];
+      const progressByCardId = new Map(deckProgress.map((item) => [item.cardId, item]));
+
+      // Cards with no progress are treated as due so users can start studying immediately.
+      const dueCount = (deck.cards || []).reduce((count, card) => {
+        const cardProgress = progressByCardId.get(card.id);
+        if (!cardProgress || !cardProgress.nextReview) {
+          return count + 1;
+        }
+
+        return new Date(cardProgress.nextReview) <= now ? count + 1 : count;
+      }, 0);
+
+      return {
+        deckId: deck.id,
+        title: deck.title,
+        dueCount,
+      };
+    })
+    .filter((item) => item.dueCount > 0)
+    .sort((a, b) => b.dueCount - a.dueCount);
+
+  const totalDueToday = deckQueues.reduce((sum, item) => sum + item.dueCount, 0);
 
   const handleImport = async (e) => {
     const file = e.target.files[0];
@@ -66,6 +93,61 @@ const Home = () => {
               className="hidden"
             />
           </label>
+        </div>
+      </div>
+
+      {/* Daily Study Queue */}
+      <div className="mb-8">
+        <div className="bg-card/90 dark:bg-dark-card/90 backdrop-blur-sm rounded-xl shadow-md p-6 border border-text-secondary/15 dark:border-dark-text-secondary/20">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+            <div>
+              <div className="flex items-center space-x-2 mb-1">
+                <CalendarDays className="w-5 h-5 text-primary dark:text-dark-primary" />
+                <h2 className="text-xl font-semibold text-text-primary dark:text-dark-text-primary">Today&apos;s Study Queue</h2>
+              </div>
+              <p className="text-sm text-text-secondary dark:text-dark-text-secondary">
+                {totalDueToday > 0
+                  ? `${totalDueToday} cards are due across ${deckQueues.length} deck${deckQueues.length > 1 ? 's' : ''}.`
+                  : 'No cards are due right now. You can still study any deck anytime.'}
+              </p>
+            </div>
+
+            {deckQueues.length > 0 && (
+              <Link
+                to={`/deck/${deckQueues[0].deckId}/study`}
+                className="inline-flex items-center justify-center space-x-2 bg-secondary dark:bg-dark-secondary text-white px-5 py-2.5 rounded-lg hover:bg-opacity-90 transition-all duration-200 hover:transform hover:scale-105"
+              >
+                <Play className="w-4 h-4" />
+                <span>Start Daily Queue</span>
+              </Link>
+            )}
+          </div>
+
+          {deckQueues.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {deckQueues.map((item) => (
+                <div
+                  key={item.deckId}
+                  className="flex items-center justify-between bg-background/70 dark:bg-dark-background/70 rounded-lg px-4 py-3 border border-text-secondary/10 dark:border-dark-text-secondary/10"
+                >
+                  <div>
+                    <div className="font-medium text-text-primary dark:text-dark-text-primary">{item.title}</div>
+                    <div className="text-sm text-accent dark:text-dark-accent">{item.dueCount} due today</div>
+                  </div>
+                  <Link
+                    to={`/deck/${item.deckId}/study`}
+                    className="text-sm bg-primary dark:bg-dark-primary text-white px-3 py-1.5 rounded-md hover:bg-opacity-90 transition-colors"
+                  >
+                    Study
+                  </Link>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-sm text-text-secondary dark:text-dark-text-secondary bg-background/60 dark:bg-dark-background/60 rounded-lg px-4 py-3 border border-dashed border-text-secondary/20 dark:border-dark-text-secondary/20">
+              You are all caught up for now. Try a quick review session to stay sharp.
+            </div>
+          )}
         </div>
       </div>
 

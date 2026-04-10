@@ -45,8 +45,14 @@ describe('Home', () => {
 
   it('displays deck cards when decks exist', () => {
     renderWithProviders(<Home />)
-    expect(screen.getByText('Test Deck')).toBeInTheDocument()
+    expect(screen.getAllByText('Test Deck').length).toBeGreaterThan(0)
     expect(screen.getByText('A test deck')).toBeInTheDocument()
+  })
+
+  it('shows a daily study queue summary', () => {
+    renderWithProviders(<Home />)
+    expect(screen.getByText("Today's Study Queue")).toBeInTheDocument()
+    expect(screen.getByText(/cards are due across/i)).toBeInTheDocument()
   })
 
   it('shows create deck button', () => {
