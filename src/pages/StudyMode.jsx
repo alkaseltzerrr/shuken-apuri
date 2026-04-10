@@ -17,7 +17,7 @@ const STUDY_MODES = {
 const StudyMode = () => {
   const { deckId } = useParams();
   const navigate = useNavigate();
-  const { decks, progress, updateProgress } = useDeck();
+  const { decks, progress, updateProgress, recordStudyActivity } = useDeck();
   const [deck, setDeck] = useState(null);
   const [currentMode, setCurrentMode] = useState(STUDY_MODES.FLIP);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
@@ -144,6 +144,11 @@ const StudyMode = () => {
       setCurrentCardIndex(prev => prev + 1);
     } else {
       // Session finished
+      const cardsReviewed = currentMode === STUDY_MODES.FLIP
+        ? studyCards.length
+        : Math.max(sessionStats.total, currentCardIndex + 1);
+
+      recordStudyActivity(cardsReviewed);
       setShowResults(true);
       // Save progress
       updateProgress(deckId, deckProgress);

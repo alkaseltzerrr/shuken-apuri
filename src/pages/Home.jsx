@@ -1,11 +1,42 @@
 import { Link } from 'react-router-dom';
 import { useDeck } from '../context/DeckContext';
-import { Plus, Upload, BookOpen, CalendarDays, Play } from 'lucide-react';
+import { Plus, Upload, BookOpen, CalendarDays, Play, Flame, BellRing, Target } from 'lucide-react';
 import DeckCard from '../components/DeckCard';
 import { exportDeck, importDeck } from '../utils/helpers';
 
 const Home = () => {
-  const { decks, deleteDeck, createDeck, progress } = useDeck();
+  const {
+    decks,
+    deleteDeck,
+    createDeck,
+    progress,
+    studyStreak,
+    setDailyGoal,
+  } = useDeck();
+
+  const streak = studyStreak || {
+    currentStreak: 0,
+    longestStreak: 0,
+    dailyGoal: 20,
+    cardsStudiedToday: 0,
+    goalCompletedToday: false,
+    lastStudyDate: null,
+  };
+
+  const goalProgress = streak.dailyGoal > 0
+    ? Math.min(100, Math.round((streak.cardsStudiedToday / streak.dailyGoal) * 100))
+    : 0;
+  const cardsRemaining = Math.max(streak.dailyGoal - streak.cardsStudiedToday, 0);
+
+  let reminderMessage = 'A short review today keeps your learning rhythm steady.';
+  if (streak.goalCompletedToday) {
+    reminderMessage = 'Daily goal complete. Great work, keep the momentum going.';
+  } else if (streak.cardsStudiedToday > 0) {
+    reminderMessage = `${cardsRemaining} more card${cardsRemaining === 1 ? '' : 's'} to hit your daily goal.`;
+  } else if (streak.currentStreak === 0 && streak.lastStudyDate) {
+    reminderMessage = 'No pressure. One quick session today will restart your streak.';
+  }
+
   const now = new Date();
 
   const deckQueues = decks
@@ -93,6 +124,75 @@ const Home = () => {
               className="hidden"
             />
           </label>
+        </div>
+      </div>
+
+      {/* Study Streak + Daily Goal */}
+      <div className="mb-8">
+        <div className="bg-card/90 dark:bg-dark-card/90 backdrop-blur-sm rounded-xl shadow-md p-6 border border-primary/20 dark:border-dark-primary/20">
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-5 mb-5">
+            <div>
+              <div className="flex items-center space-x-2 mb-1">
+                <Flame className="w-5 h-5 text-warning dark:text-dark-warning" />
+                <h2 className="text-xl font-semibold text-text-primary dark:text-dark-text-primary">Study Streak</h2>
+              </div>
+              <p className="text-sm text-text-secondary dark:text-dark-text-secondary">
+                Stay consistent with a daily target and keep your streak alive.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3 text-sm">
+              {[10, 20, 30].map((goal) => (
+                <button
+                  key={goal}
+                  onClick={() => setDailyGoal(goal)}
+                  className={`px-3 py-1.5 rounded-md border transition-colors ${
+                    streak.dailyGoal === goal
+                      ? 'bg-primary dark:bg-dark-primary text-white border-primary dark:border-dark-primary'
+                      : 'bg-background/70 dark:bg-dark-background/70 text-text-primary dark:text-dark-text-primary border-text-secondary/20 dark:border-dark-text-secondary/20 hover:border-primary dark:hover:border-dark-primary'
+                  }`}
+                >
+                  {goal}/day
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+            <div className="rounded-lg bg-background/70 dark:bg-dark-background/70 p-4 border border-text-secondary/10 dark:border-dark-text-secondary/10">
+              <div className="text-xs uppercase tracking-wide text-text-secondary dark:text-dark-text-secondary">Current Streak</div>
+              <div className="text-2xl font-bold text-warning dark:text-dark-warning">{streak.currentStreak} day{streak.currentStreak === 1 ? '' : 's'}</div>
+            </div>
+            <div className="rounded-lg bg-background/70 dark:bg-dark-background/70 p-4 border border-text-secondary/10 dark:border-dark-text-secondary/10">
+              <div className="text-xs uppercase tracking-wide text-text-secondary dark:text-dark-text-secondary">Longest Streak</div>
+              <div className="text-2xl font-bold text-primary dark:text-dark-primary">{streak.longestStreak} day{streak.longestStreak === 1 ? '' : 's'}</div>
+            </div>
+            <div className="rounded-lg bg-background/70 dark:bg-dark-background/70 p-4 border border-text-secondary/10 dark:border-dark-text-secondary/10">
+              <div className="text-xs uppercase tracking-wide text-text-secondary dark:text-dark-text-secondary">Today</div>
+              <div className="text-2xl font-bold text-secondary dark:text-dark-secondary">{streak.cardsStudiedToday}/{streak.dailyGoal}</div>
+            </div>
+          </div>
+
+          <div className="mb-3">
+            <div className="flex items-center justify-between mb-2 text-sm">
+              <div className="flex items-center space-x-2 text-text-secondary dark:text-dark-text-secondary">
+                <Target className="w-4 h-4" />
+                <span>Daily goal progress</span>
+              </div>
+              <span className="font-medium text-text-primary dark:text-dark-text-primary">{goalProgress}%</span>
+            </div>
+            <div className="w-full bg-text-secondary/15 dark:bg-dark-text-secondary/15 rounded-full h-2.5">
+              <div
+                className="bg-secondary dark:bg-dark-secondary h-2.5 rounded-full transition-all duration-500"
+                style={{ width: `${goalProgress}%` }}
+              ></div>
+            </div>
+          </div>
+
+          <div className="flex items-start space-x-2 text-sm text-text-secondary dark:text-dark-text-secondary bg-background/60 dark:bg-dark-background/60 rounded-lg px-3 py-2 border border-text-secondary/10 dark:border-dark-text-secondary/10">
+            <BellRing className="w-4 h-4 mt-0.5 text-accent dark:text-dark-accent" />
+            <span>{reminderMessage}</span>
+          </div>
         </div>
       </div>
 

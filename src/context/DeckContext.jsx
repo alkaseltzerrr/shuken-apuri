@@ -5,6 +5,83 @@ import { api } from '../utils/api';
 
 const DeckContext = createContext();
 
+const DEFAULT_STUDY_STREAK = {
+  currentStreak: 0,
+  longestStreak: 0,
+  lastStudyDate: null,
+  dailyGoal: 20,
+  cardsStudiedToday: 0,
+  goalCompletedToday: false,
+};
+
+const getDateKey = (date = new Date()) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const parseDateKey = (dateKey) => {
+  const [year, month, day] = String(dateKey).split('-').map(Number);
+  return new Date(year, month - 1, day);
+};
+
+const getDayDifference = (fromDateKey, toDateKey) => {
+  if (!fromDateKey || !toDateKey) return 0;
+
+  const fromDate = parseDateKey(fromDateKey);
+  const toDate = parseDateKey(toDateKey);
+
+  if (Number.isNaN(fromDate.getTime()) || Number.isNaN(toDate.getTime())) {
+    return 0;
+  }
+
+  const msPerDay = 24 * 60 * 60 * 1000;
+  return Math.floor((toDate.getTime() - fromDate.getTime()) / msPerDay);
+};
+
+const normalizeStudyStreak = (value) => {
+  const normalized = {
+    ...DEFAULT_STUDY_STREAK,
+    ...(value || {}),
+  };
+
+  normalized.currentStreak = Math.max(0, Number(normalized.currentStreak) || 0);
+  normalized.longestStreak = Math.max(0, Number(normalized.longestStreak) || 0);
+  normalized.dailyGoal = Math.max(1, Number(normalized.dailyGoal) || DEFAULT_STUDY_STREAK.dailyGoal);
+  normalized.cardsStudiedToday = Math.max(0, Number(normalized.cardsStudiedToday) || 0);
+
+  const todayKey = getDateKey();
+  const dayGap = normalized.lastStudyDate
+    ? getDayDifference(normalized.lastStudyDate, todayKey)
+    : 0;
+
+  if (dayGap > 1) {
+    normalized.currentStreak = 0;
+  }
+
+  if (dayGap !== 0) {
+    normalized.cardsStudiedToday = 0;
+    normalized.goalCompletedToday = false;
+  }
+
+  normalized.goalCompletedToday = normalized.cardsStudiedToday >= normalized.dailyGoal;
+  normalized.longestStreak = Math.max(normalized.longestStreak, normalized.currentStreak);
+
+  return normalized;
+};
+
+const isSameStudyStreak = (left, right) => {
+  if (!left || !right) return false;
+
+  return left.currentStreak === right.currentStreak &&
+    left.longestStreak === right.longestStreak &&
+    left.lastStudyDate === right.lastStudyDate &&
+    left.dailyGoal === right.dailyGoal &&
+    left.cardsStudiedToday === right.cardsStudiedToday &&
+    left.goalCompletedToday === right.goalCompletedToday;
+};
+
 const deckReducer = (state, action) => {
   switch (action.type) {
     case 'SET_DECKS':
@@ -33,6 +110,8 @@ const deckReducer = (state, action) => {
           [action.payload.deckId]: action.payload.progress,
         },
       };
+    case 'SET_STREAK':
+      return { ...state, studyStreak: action.payload };
     case 'SET_LOADING':
       return { ...state, loading: action.payload };
     case 'SET_ERROR':
@@ -45,6 +124,7 @@ const deckReducer = (state, action) => {
 const initialState = {
   decks: [],
   progress: {},
+  studyStreak: DEFAULT_STUDY_STREAK,
   loading: false,
   error: null,
 };
@@ -53,6 +133,7 @@ export const DeckProvider = ({ children }) => {
   const [state, dispatch] = useReducer(deckReducer, initialState);
   const [localDecks, setLocalDecks] = useLocalStorage('shuken-decks', []);
   const [localProgress, setLocalProgress] = useLocalStorage('shuken-progress', {});
+  const [localStudyStreak, setLocalStudyStreak] = useLocalStorage('shuken-study-streak', DEFAULT_STUDY_STREAK);
 
   // Initialize with sample decks if none exist
   useEffect(() => {
@@ -64,7 +145,13 @@ export const DeckProvider = ({ children }) => {
       dispatch({ type: 'SET_DECKS', payload: localDecks });
     }
     dispatch({ type: 'SET_PROGRESS', payload: localProgress });
-  }, [localDecks, localProgress, setLocalDecks]);
+
+    const normalizedStreak = normalizeStudyStreak(localStudyStreak);
+    dispatch({ type: 'SET_STREAK', payload: normalizedStreak });
+    if (!isSameStudyStreak(normalizedStreak, localStudyStreak)) {
+      setLocalStudyStreak(normalizedStreak);
+    }
+  }, [localDecks, localProgress, localStudyStreak, setLocalDecks, setLocalStudyStreak]);
 
   // Try to sync with backend
   const syncWithBackend = async () => {
@@ -158,6 +245,45 @@ export const DeckProvider = ({ children }) => {
     dispatch({ type: 'UPDATE_DECK_PROGRESS', payload: { deckId, progress: progressData } });
   };
 
+  const recordStudyActivity = (cardsReviewed = 0) => {
+    const safeCardsReviewed = Math.max(0, Number(cardsReviewed) || 0);
+    const todayKey = getDateKey();
+    const currentStreak = normalizeStudyStreak(localStudyStreak);
+    const updatedStreak = { ...currentStreak };
+
+    if (updatedStreak.lastStudyDate !== todayKey) {
+      const dayGap = updatedStreak.lastStudyDate
+        ? getDayDifference(updatedStreak.lastStudyDate, todayKey)
+        : 0;
+
+      updatedStreak.currentStreak = dayGap === 1 ? updatedStreak.currentStreak + 1 : 1;
+      updatedStreak.lastStudyDate = todayKey;
+      updatedStreak.cardsStudiedToday = 0;
+    }
+
+    updatedStreak.cardsStudiedToday += safeCardsReviewed;
+    updatedStreak.goalCompletedToday = updatedStreak.cardsStudiedToday >= updatedStreak.dailyGoal;
+    updatedStreak.longestStreak = Math.max(updatedStreak.longestStreak, updatedStreak.currentStreak);
+
+    const normalizedUpdatedStreak = normalizeStudyStreak(updatedStreak);
+    setLocalStudyStreak(normalizedUpdatedStreak);
+    dispatch({ type: 'SET_STREAK', payload: normalizedUpdatedStreak });
+  };
+
+  const setDailyGoal = (nextGoal) => {
+    const sanitizedGoal = Math.min(200, Math.max(1, Number(nextGoal) || DEFAULT_STUDY_STREAK.dailyGoal));
+    const currentStreak = normalizeStudyStreak(localStudyStreak);
+
+    const updatedStreak = {
+      ...currentStreak,
+      dailyGoal: sanitizedGoal,
+      goalCompletedToday: currentStreak.cardsStudiedToday >= sanitizedGoal,
+    };
+
+    setLocalStudyStreak(updatedStreak);
+    dispatch({ type: 'SET_STREAK', payload: updatedStreak });
+  };
+
   const value = {
     ...state,
     createDeck,
@@ -165,6 +291,8 @@ export const DeckProvider = ({ children }) => {
     deleteDeck,
     updateProgress,
     syncWithBackend,
+    recordStudyActivity,
+    setDailyGoal,
   };
 
   return <DeckContext.Provider value={value}>{children}</DeckContext.Provider>;

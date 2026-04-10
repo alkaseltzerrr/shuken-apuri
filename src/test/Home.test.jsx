@@ -24,6 +24,15 @@ vi.mock('../context/DeckContext', () => ({
     progress: {},
     deleteDeck: vi.fn(),
     createDeck: vi.fn(),
+    setDailyGoal: vi.fn(),
+    studyStreak: {
+      currentStreak: 2,
+      longestStreak: 5,
+      lastStudyDate: '2026-04-10',
+      dailyGoal: 20,
+      cardsStudiedToday: 4,
+      goalCompletedToday: false,
+    },
   }),
 }))
 
@@ -53,6 +62,13 @@ describe('Home', () => {
     renderWithProviders(<Home />)
     expect(screen.getByText("Today's Study Queue")).toBeInTheDocument()
     expect(screen.getByText(/cards are due across/i)).toBeInTheDocument()
+  })
+
+  it('shows streak and daily goal information', () => {
+    renderWithProviders(<Home />)
+    expect(screen.getByText('Study Streak')).toBeInTheDocument()
+    expect(screen.getByText('Current Streak')).toBeInTheDocument()
+    expect(screen.getByText('Daily goal progress')).toBeInTheDocument()
   })
 
   it('shows create deck button', () => {
