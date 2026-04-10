@@ -7,6 +7,7 @@ import DeckView from './pages/DeckView';
 import StudyMode from './pages/StudyMode';
 import CreateDeck from './pages/CreateDeck';
 import EditDeck from './pages/EditDeck';
+import QuickAddCardFab from './components/QuickAddCardFab';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
                 <Route path="/deck/:deckId/edit" element={<EditDeck />} />
               </Routes>
             </main>
+            <QuickAddCardFab />
           </div>
         </Router>
       </DeckProvider>
