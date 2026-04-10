@@ -5,6 +5,7 @@ import { getDeckStats } from '../utils/spacedRepetition';
 
 const DeckCard = ({ deck, progress = [], onDelete }) => {
   const stats = getDeckStats(progress);
+  const tags = Array.isArray(deck.tags) ? deck.tags.slice(0, 3) : [];
 
   return (
     <div className="bg-card/90 dark:bg-dark-card/90 backdrop-blur-sm rounded-xl shadow-md hover:shadow-lg transition-all duration-500 border-2 border-transparent hover:border-primary dark:hover:border-dark-primary animate-slide-up relative">
@@ -27,6 +28,39 @@ const DeckCard = ({ deck, progress = [], onDelete }) => {
                 <span>{formatDate(deck.updatedAt)}</span>
               </div>
             </div>
+
+            {(deck.language || deck.subject || deck.exam || deck.difficulty || tags.length > 0) && (
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {deck.language && (
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-primary/15 dark:bg-dark-primary/20 text-primary dark:text-dark-primary">
+                    {deck.language}
+                  </span>
+                )}
+                {deck.subject && (
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-secondary/15 dark:bg-dark-secondary/20 text-secondary dark:text-dark-secondary">
+                    {deck.subject}
+                  </span>
+                )}
+                {deck.exam && (
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-accent/15 dark:bg-dark-accent/20 text-accent dark:text-dark-accent">
+                    {deck.exam}
+                  </span>
+                )}
+                {deck.difficulty && (
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-warning/15 dark:bg-dark-warning/20 text-warning dark:text-dark-warning">
+                    {deck.difficulty}
+                  </span>
+                )}
+                {tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="text-xs px-2 py-0.5 rounded-full bg-text-secondary/15 dark:bg-dark-text-secondary/20 text-text-secondary dark:text-dark-text-secondary"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
           <button
             onClick={(e) => {

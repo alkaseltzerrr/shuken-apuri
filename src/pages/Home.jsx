@@ -1,8 +1,36 @@
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDeck } from '../context/DeckContext';
-import { Plus, Upload, BookOpen, CalendarDays, Play, Flame, BellRing, Target } from 'lucide-react';
+import { Plus, Upload, BookOpen, CalendarDays, Play, Flame, BellRing, Target, Filter, X } from 'lucide-react';
 import DeckCard from '../components/DeckCard';
 import { exportDeck, importDeck } from '../utils/helpers';
+
+const SORT_ORDER = ['Beginner', 'Intermediate', 'Advanced'];
+
+const sortOptions = (values) => {
+  return [...values].sort((left, right) => {
+    const leftIndex = SORT_ORDER.indexOf(left);
+    const rightIndex = SORT_ORDER.indexOf(right);
+
+    if (leftIndex !== -1 || rightIndex !== -1) {
+      const safeLeft = leftIndex === -1 ? Number.MAX_SAFE_INTEGER : leftIndex;
+      const safeRight = rightIndex === -1 ? Number.MAX_SAFE_INTEGER : rightIndex;
+      return safeLeft - safeRight;
+    }
+
+    return left.localeCompare(right);
+  });
+};
+
+const normalizeDeckMetadata = (deck) => ({
+  language: (deck.language || '').trim(),
+  subject: (deck.subject || '').trim(),
+  exam: (deck.exam || '').trim(),
+  difficulty: (deck.difficulty || '').trim(),
+  tags: Array.isArray(deck.tags)
+    ? deck.tags.map((tag) => tag.trim()).filter(Boolean)
+    : [],
+});
 
 const Home = () => {
   const {
@@ -23,6 +51,67 @@ const Home = () => {
     lastStudyDate: null,
   };
 
+  const [filters, setFilters] = useState({
+    language: 'all',
+    subject: 'all',
+    exam: 'all',
+    difficulty: 'all',
+    tag: 'all',
+  });
+
+  const filterOptions = useMemo(() => {
+    const sets = {
+      language: new Set(),
+      subject: new Set(),
+      exam: new Set(),
+      difficulty: new Set(),
+      tag: new Set(),
+    };
+
+    decks.forEach((deck) => {
+      const metadata = normalizeDeckMetadata(deck);
+      if (metadata.language) sets.language.add(metadata.language);
+      if (metadata.subject) sets.subject.add(metadata.subject);
+      if (metadata.exam) sets.exam.add(metadata.exam);
+      if (metadata.difficulty) sets.difficulty.add(metadata.difficulty);
+      metadata.tags.forEach((tag) => sets.tag.add(tag));
+    });
+
+    return {
+      language: sortOptions(sets.language),
+      subject: sortOptions(sets.subject),
+      exam: sortOptions(sets.exam),
+      difficulty: sortOptions(sets.difficulty),
+      tag: sortOptions(sets.tag),
+    };
+  }, [decks]);
+
+  const filteredDecks = useMemo(() => {
+    return decks.filter((deck) => {
+      const metadata = normalizeDeckMetadata(deck);
+
+      if (filters.language !== 'all' && metadata.language !== filters.language) {
+        return false;
+      }
+      if (filters.subject !== 'all' && metadata.subject !== filters.subject) {
+        return false;
+      }
+      if (filters.exam !== 'all' && metadata.exam !== filters.exam) {
+        return false;
+      }
+      if (filters.difficulty !== 'all' && metadata.difficulty !== filters.difficulty) {
+        return false;
+      }
+      if (filters.tag !== 'all' && !metadata.tags.includes(filters.tag)) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [decks, filters]);
+
+  const hasActiveFilters = Object.values(filters).some(value => value !== 'all');
+
   const goalProgress = streak.dailyGoal > 0
     ? Math.min(100, Math.round((streak.cardsStudiedToday / streak.dailyGoal) * 100))
     : 0;
@@ -39,7 +128,7 @@ const Home = () => {
 
   const now = new Date();
 
-  const deckQueues = decks
+  const deckQueues = filteredDecks
     .map((deck) => {
       const deckProgress = progress[deck.id] || [];
       const progressByCardId = new Map(deckProgress.map((item) => [item.cardId, item]));
@@ -65,6 +154,20 @@ const Home = () => {
 
   const totalDueToday = deckQueues.reduce((sum, item) => sum + item.dueCount, 0);
 
+  const setFilterValue = (field, value) => {
+    setFilters(prev => ({ ...prev, [field]: value }));
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      language: 'all',
+      subject: 'all',
+      exam: 'all',
+      difficulty: 'all',
+      tag: 'all',
+    });
+  };
+
   const handleImport = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -74,6 +177,11 @@ const Home = () => {
       await createDeck({
         title: importedDeck.title,
         description: importedDeck.description,
+        language: importedDeck.language || '',
+        subject: importedDeck.subject || '',
+        exam: importedDeck.exam || '',
+        difficulty: importedDeck.difficulty || 'Beginner',
+        tags: Array.isArray(importedDeck.tags) ? importedDeck.tags : [],
         cards: importedDeck.cards || [],
       });
       alert('Deck imported successfully!');
@@ -196,6 +304,96 @@ const Home = () => {
         </div>
       </div>
 
+      {/* Smart Filters */}
+      {decks.length > 0 && (
+        <div className="mb-8">
+          <div className="bg-card/90 dark:bg-dark-card/90 backdrop-blur-sm rounded-xl shadow-md p-6 border border-secondary/20 dark:border-dark-secondary/20">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+              <div>
+                <div className="flex items-center space-x-2 mb-1">
+                  <Filter className="w-5 h-5 text-secondary dark:text-dark-secondary" />
+                  <h2 className="text-xl font-semibold text-text-primary dark:text-dark-text-primary">Smart Filters</h2>
+                </div>
+                <p className="text-sm text-text-secondary dark:text-dark-text-secondary">
+                  Filter decks by language, subject, exam, difficulty, and tags.
+                </p>
+              </div>
+
+              {hasActiveFilters && (
+                <button
+                  onClick={clearFilters}
+                  className="inline-flex items-center space-x-2 px-4 py-2 rounded-lg bg-background/70 dark:bg-dark-background/70 border border-text-secondary/20 dark:border-dark-text-secondary/20 hover:border-secondary dark:hover:border-dark-secondary text-text-primary dark:text-dark-text-primary transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                  <span>Clear Filters</span>
+                </button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+              <select
+                value={filters.language}
+                onChange={(e) => setFilterValue('language', e.target.value)}
+                className="px-3 py-2 rounded-lg border border-text-secondary/20 dark:border-dark-text-secondary/20 bg-background/80 dark:bg-dark-background/80 text-text-primary dark:text-dark-text-primary focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-dark-secondary"
+              >
+                <option value="all">All Languages</option>
+                {filterOptions.language.map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+
+              <select
+                value={filters.subject}
+                onChange={(e) => setFilterValue('subject', e.target.value)}
+                className="px-3 py-2 rounded-lg border border-text-secondary/20 dark:border-dark-text-secondary/20 bg-background/80 dark:bg-dark-background/80 text-text-primary dark:text-dark-text-primary focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-dark-secondary"
+              >
+                <option value="all">All Subjects</option>
+                {filterOptions.subject.map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+
+              <select
+                value={filters.exam}
+                onChange={(e) => setFilterValue('exam', e.target.value)}
+                className="px-3 py-2 rounded-lg border border-text-secondary/20 dark:border-dark-text-secondary/20 bg-background/80 dark:bg-dark-background/80 text-text-primary dark:text-dark-text-primary focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-dark-secondary"
+              >
+                <option value="all">All Exams</option>
+                {filterOptions.exam.map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+
+              <select
+                value={filters.difficulty}
+                onChange={(e) => setFilterValue('difficulty', e.target.value)}
+                className="px-3 py-2 rounded-lg border border-text-secondary/20 dark:border-dark-text-secondary/20 bg-background/80 dark:bg-dark-background/80 text-text-primary dark:text-dark-text-primary focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-dark-secondary"
+              >
+                <option value="all">All Difficulties</option>
+                {filterOptions.difficulty.map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+
+              <select
+                value={filters.tag}
+                onChange={(e) => setFilterValue('tag', e.target.value)}
+                className="px-3 py-2 rounded-lg border border-text-secondary/20 dark:border-dark-text-secondary/20 bg-background/80 dark:bg-dark-background/80 text-text-primary dark:text-dark-text-primary focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-dark-secondary"
+              >
+                <option value="all">All Tags</option>
+                {filterOptions.tag.map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="mt-3 text-sm text-text-secondary dark:text-dark-text-secondary">
+              Showing {filteredDecks.length} of {decks.length} deck{decks.length === 1 ? '' : 's'}.
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Daily Study Queue */}
       <div className="mb-8">
         <div className="bg-card/90 dark:bg-dark-card/90 backdrop-blur-sm rounded-xl shadow-md p-6 border border-text-secondary/15 dark:border-dark-text-secondary/20">
@@ -269,9 +467,25 @@ const Home = () => {
             <span>Create Deck</span>
           </Link>
         </div>
+      ) : filteredDecks.length === 0 ? (
+        <div className="text-center py-12 bg-card/50 dark:bg-dark-card/50 backdrop-blur-sm rounded-xl">
+          <h3 className="text-xl font-medium text-text-secondary dark:text-dark-text-secondary mb-2">
+            No decks match your filters
+          </h3>
+          <p className="text-text-secondary dark:text-dark-text-secondary mb-6">
+            Try clearing or relaxing your filter selections.
+          </p>
+          <button
+            onClick={clearFilters}
+            className="inline-flex items-center space-x-2 bg-secondary dark:bg-dark-secondary text-white px-6 py-3 rounded-full hover:bg-opacity-90 transition-all duration-200 hover:transform hover:scale-105"
+          >
+            <X className="w-4 h-4" />
+            <span>Clear Filters</span>
+          </button>
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {decks.map((deck) => (
+          {filteredDecks.map((deck) => (
             <div key={deck.id} className="relative">
               <DeckCard
                 deck={deck}
@@ -302,15 +516,19 @@ const Home = () => {
             <div className="flex items-center space-x-8 text-sm">
               <div>
                 <div className="text-2xl font-bold text-primary dark:text-dark-primary">
-                  {decks.length}
+                  {filteredDecks.length}
                 </div>
-                <div className="text-text-secondary dark:text-dark-text-secondary">Decks</div>
+                <div className="text-text-secondary dark:text-dark-text-secondary">
+                  {hasActiveFilters ? 'Filtered Decks' : 'Decks'}
+                </div>
               </div>
               <div>
                 <div className="text-2xl font-bold text-primary dark:text-dark-primary">
-                  {decks.reduce((total, deck) => total + (deck.cards?.length || 0), 0)}
+                  {filteredDecks.reduce((total, deck) => total + (deck.cards?.length || 0), 0)}
                 </div>
-                <div className="text-text-secondary dark:text-dark-text-secondary">Cards</div>
+                <div className="text-text-secondary dark:text-dark-text-secondary">
+                  {hasActiveFilters ? 'Filtered Cards' : 'Cards'}
+                </div>
               </div>
               <div>
                 <div className="text-2xl font-bold text-secondary dark:text-dark-secondary">

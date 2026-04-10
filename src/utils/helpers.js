@@ -6,6 +6,11 @@ export const generateSampleDecks = () => [
     id: '1',
     title: 'Japanese Hiragana',
     description: 'Basic hiragana characters',
+    language: 'Japanese',
+    subject: 'Language',
+    exam: 'JLPT N5',
+    difficulty: 'Beginner',
+    tags: ['kana', 'reading', 'pronunciation'],
     cards: [
       { id: '1', front: 'あ', back: 'a' },
       { id: '2', front: 'か', back: 'ka' },
@@ -20,6 +25,11 @@ export const generateSampleDecks = () => [
     id: '2',
     title: 'Math Basics',
     description: 'Elementary mathematics',
+    language: 'English',
+    subject: 'Mathematics',
+    exam: 'SAT Prep',
+    difficulty: 'Intermediate',
+    tags: ['arithmetic', 'numbers', 'foundations'],
     cards: [
       { id: '1', front: 'What is 7 × 8?', back: '56' },
       { id: '2', front: 'What is 144 ÷ 12?', back: '12' },

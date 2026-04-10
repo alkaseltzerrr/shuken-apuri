@@ -71,6 +71,13 @@ describe('Home', () => {
     expect(screen.getByText('Daily goal progress')).toBeInTheDocument()
   })
 
+  it('shows smart filter controls', () => {
+    renderWithProviders(<Home />)
+    expect(screen.getByText('Smart Filters')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('All Languages')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('All Tags')).toBeInTheDocument()
+  })
+
   it('shows create deck button', () => {
     renderWithProviders(<Home />)
     expect(screen.getByText('Create New Deck')).toBeInTheDocument()

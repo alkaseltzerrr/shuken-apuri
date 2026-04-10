@@ -11,6 +11,11 @@ const EditDeck = () => {
   const [deckData, setDeckData] = useState({
     title: '',
     description: '',
+    language: '',
+    subject: '',
+    exam: '',
+    difficulty: 'Beginner',
+    tags: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -21,6 +26,11 @@ const EditDeck = () => {
       setDeckData({
         title: foundDeck.title,
         description: foundDeck.description || '',
+        language: foundDeck.language || '',
+        subject: foundDeck.subject || '',
+        exam: foundDeck.exam || '',
+        difficulty: foundDeck.difficulty || 'Beginner',
+        tags: Array.isArray(foundDeck.tags) ? foundDeck.tags.join(', ') : '',
       });
     } else {
       navigate('/');
@@ -46,6 +56,14 @@ const EditDeck = () => {
       await updateDeck(deckId, {
         title: deckData.title.trim(),
         description: deckData.description.trim(),
+        language: deckData.language.trim(),
+        subject: deckData.subject.trim(),
+        exam: deckData.exam.trim(),
+        difficulty: deckData.difficulty,
+        tags: deckData.tags
+          .split(',')
+          .map(tag => tag.trim())
+          .filter(Boolean),
       });
 
   navigate('/');
@@ -120,6 +138,77 @@ const EditDeck = () => {
                 placeholder="Describe what this deck is about..."
                 className="w-full px-4 py-3 border border-text-secondary/30 dark:border-dark-text-secondary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-dark-primary bg-background dark:bg-dark-background text-text-primary dark:text-dark-text-primary placeholder-text-secondary dark:placeholder-dark-text-secondary"
                 rows="3"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-text-primary dark:text-dark-text-primary mb-1">
+                  Language
+                </label>
+                <input
+                  type="text"
+                  value={deckData.language}
+                  onChange={(e) => handleDeckChange('language', e.target.value)}
+                  placeholder="Japanese, English, Spanish..."
+                  className="w-full px-4 py-3 border border-text-secondary/30 dark:border-dark-text-secondary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-dark-primary bg-background dark:bg-dark-background text-text-primary dark:text-dark-text-primary placeholder-text-secondary dark:placeholder-dark-text-secondary"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-text-primary dark:text-dark-text-primary mb-1">
+                  Subject
+                </label>
+                <input
+                  type="text"
+                  value={deckData.subject}
+                  onChange={(e) => handleDeckChange('subject', e.target.value)}
+                  placeholder="Language, Biology, History..."
+                  className="w-full px-4 py-3 border border-text-secondary/30 dark:border-dark-text-secondary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-dark-primary bg-background dark:bg-dark-background text-text-primary dark:text-dark-text-primary placeholder-text-secondary dark:placeholder-dark-text-secondary"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-text-primary dark:text-dark-text-primary mb-1">
+                  Exam
+                </label>
+                <input
+                  type="text"
+                  value={deckData.exam}
+                  onChange={(e) => handleDeckChange('exam', e.target.value)}
+                  placeholder="JLPT N5, SAT, Midterm..."
+                  className="w-full px-4 py-3 border border-text-secondary/30 dark:border-dark-text-secondary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-dark-primary bg-background dark:bg-dark-background text-text-primary dark:text-dark-text-primary placeholder-text-secondary dark:placeholder-dark-text-secondary"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-text-primary dark:text-dark-text-primary mb-1">
+                  Difficulty
+                </label>
+                <select
+                  value={deckData.difficulty}
+                  onChange={(e) => handleDeckChange('difficulty', e.target.value)}
+                  className="w-full px-4 py-3 border border-text-secondary/30 dark:border-dark-text-secondary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-dark-primary bg-background dark:bg-dark-background text-text-primary dark:text-dark-text-primary"
+                >
+                  <option>Beginner</option>
+                  <option>Intermediate</option>
+                  <option>Advanced</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-text-primary dark:text-dark-text-primary mb-1">
+                Tags (comma-separated)
+              </label>
+              <input
+                type="text"
+                value={deckData.tags}
+                onChange={(e) => handleDeckChange('tags', e.target.value)}
+                placeholder="kanji, grammar, verbs"
+                className="w-full px-4 py-3 border border-text-secondary/30 dark:border-dark-text-secondary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-dark-primary bg-background dark:bg-dark-background text-text-primary dark:text-dark-text-primary placeholder-text-secondary dark:placeholder-dark-text-secondary"
               />
             </div>
           </div>
