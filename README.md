@@ -14,7 +14,7 @@ Shuken Apuri is a playful blend of "shuchuu" (focus) and "shiken" (exam) — lik
 - **Study Modes**: Flip cards (spacebar magic), multiple choice (auto-distractors), or type answers (fuzzy match) 🎴
 - **Smart Repetition**: Leitner-style spaced learning — cards move boxes based on your smarts! 🧠
 - **Progress Glow**: Track mastery, due cards, and accuracy with pastel progress bars 📊
-- **Share & Save**: Import/export decks as JSON — share with friends or backup your brain! 📁
+- **Share & Save**: Import decks from JSON or CSV, and export as JSON — share with friends or backup your brain! 📁
 
 ---
 

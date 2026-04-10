@@ -85,6 +85,9 @@ describe('Home', () => {
 
   it('shows import deck functionality', () => {
     renderWithProviders(<Home />)
-    expect(screen.getByText('Import Deck')).toBeInTheDocument()
+    expect(screen.getByText('Import Deck (JSON/CSV)')).toBeInTheDocument()
+
+    const input = document.querySelector('input[type="file"]')
+    expect(input).toHaveAttribute('accept', '.json,.csv,text/csv')
   })
 })

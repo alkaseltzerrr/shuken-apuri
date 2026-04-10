@@ -224,10 +224,10 @@ const Home = () => {
           
           <label className="flex items-center space-x-2 bg-primary dark:bg-dark-primary text-white px-6 py-3 rounded-full hover:bg-opacity-90 transition-all duration-200 hover:transform hover:scale-105 shadow-md cursor-pointer">
             <Upload className="w-5 h-5" />
-            <span>Import Deck</span>
+            <span>Import Deck (JSON/CSV)</span>
             <input
               type="file"
-              accept=".json"
+              accept=".json,.csv,text/csv"
               onChange={handleImport}
               className="hidden"
             />
