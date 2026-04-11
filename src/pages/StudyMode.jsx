@@ -14,6 +14,8 @@ const STUDY_MODES = {
   IDENTIFICATION: 'identification',
 };
 
+const DEFAULT_CONFIDENCE = 'medium';
+
 const StudyMode = () => {
   const { deckId } = useParams();
   const navigate = useNavigate();
@@ -35,6 +37,7 @@ const StudyMode = () => {
   const popoverFirstButtonRef = useRef(null);
   const popoverSecondButtonRef = useRef(null);
   const previousFocusRef = useRef(null);
+  const deckProgressRef = useRef([]);
 
   useEffect(() => {
     const foundDeck = decks.find(d => d.id === deckId);
@@ -51,6 +54,7 @@ const StudyMode = () => {
       });
       
       setDeckProgress(updatedProgress);
+      deckProgressRef.current = updatedProgress;
       
       // Determine which cards to study (due for review + some random cards)
       const dueCards = getCardsToReview(updatedProgress);
@@ -117,7 +121,7 @@ const StudyMode = () => {
     }
   }, [showReturnModal]);
 
-  const handleAnswer = (isCorrect) => {
+  const handleAnswer = (isCorrect, confidence = DEFAULT_CONFIDENCE) => {
     const currentCard = studyCards[currentCardIndex];
     if (!currentCard) return;
 
@@ -131,11 +135,12 @@ const StudyMode = () => {
     // Update spaced repetition progress
     const currentCardProgress = deckProgress.find(p => p.cardId === currentCard.id);
     if (currentCardProgress) {
-      const updatedProgress = updateCardProgress(currentCardProgress, isCorrect);
+      const updatedProgress = updateCardProgress(currentCardProgress, isCorrect, confidence);
       const newDeckProgress = deckProgress.map(p => 
         p.cardId === currentCard.id ? updatedProgress : p
       );
       setDeckProgress(newDeckProgress);
+      deckProgressRef.current = newDeckProgress;
     }
   };
 
@@ -151,7 +156,7 @@ const StudyMode = () => {
       recordStudyActivity(cardsReviewed);
       setShowResults(true);
       // Save progress
-      updateProgress(deckId, deckProgress);
+      updateProgress(deckId, deckProgressRef.current);
     }
   };
 

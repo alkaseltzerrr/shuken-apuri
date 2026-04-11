@@ -12,6 +12,7 @@ const IdentificationMode = ({
   const [userAnswer, setUserAnswer] = useState('');
   const [showResult, setShowResult] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+  const [confidenceLevel, setConfidenceLevel] = useState(null);
   const [showSupport, setShowSupport] = useState(false);
   const hasSupport = Boolean(card?.hint || card?.example);
   const inputRef = useRef(null);
@@ -20,6 +21,7 @@ const IdentificationMode = ({
     // Reset for new card
     setUserAnswer('');
     setShowResult(false);
+    setConfidenceLevel(null);
     setShowSupport(false);
     if (inputRef.current) {
       inputRef.current.focus();
@@ -39,7 +41,13 @@ const IdentificationMode = ({
     
     setIsCorrect(correct);
     setShowResult(true);
-    onAnswer(correct);
+  };
+
+  const handleConfidenceSelect = (level) => {
+    if (!showResult || confidenceLevel) return;
+
+    setConfidenceLevel(level);
+    onAnswer(isCorrect, level);
   };
 
   const handleNext = () => {
@@ -48,15 +56,20 @@ const IdentificationMode = ({
 
   const handleKeyPress = (e) => {
     if (showResult && (e.key === 'Enter' || e.code === 'Space')) {
-      e.preventDefault();
-      handleNext();
+      if (confidenceLevel) {
+        e.preventDefault();
+        handleNext();
+      }
+    } else if (showResult && !confidenceLevel && ['1', '2', '3'].includes(e.key)) {
+      const map = { 1: 'hard', 2: 'medium', 3: 'easy' };
+      handleConfidenceSelect(map[e.key]);
     }
   };
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [showResult]);
+  }, [showResult, confidenceLevel]);
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -180,11 +193,43 @@ const IdentificationMode = ({
             </div>
           </div>
 
+          <div className="mb-5">
+            <div className="text-sm text-text-secondary dark:text-dark-text-secondary mb-2">
+              Rate your confidence for scheduling
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              {[{ id: 'hard', label: 'Hard' }, { id: 'medium', label: 'Medium' }, { id: 'easy', label: 'Easy' }].map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => handleConfidenceSelect(item.id)}
+                  disabled={Boolean(confidenceLevel)}
+                  className={`px-4 py-2 rounded-lg border transition-colors ${
+                    confidenceLevel === item.id
+                      ? 'bg-secondary dark:bg-dark-secondary text-white border-secondary dark:border-dark-secondary'
+                      : 'bg-card/80 dark:bg-dark-card/80 border-text-secondary/25 dark:border-dark-text-secondary/25 text-text-primary dark:text-dark-text-primary hover:border-secondary dark:hover:border-dark-secondary'
+                  } ${confidenceLevel ? 'opacity-80' : ''}`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+            {!confidenceLevel && (
+              <div className="text-xs text-text-secondary dark:text-dark-text-secondary mt-2">
+                Quick keys: 1 Hard, 2 Medium, 3 Easy
+              </div>
+            )}
+          </div>
+
           <button
             onClick={handleNext}
-            className="bg-primary dark:bg-dark-primary text-white px-8 py-3 rounded-lg hover:bg-opacity-90 transition-all duration-400 hover:transform hover:scale-105"
+            disabled={!confidenceLevel}
+            className="bg-primary dark:bg-dark-primary text-white px-8 py-3 rounded-lg hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-400 hover:transform hover:scale-105"
           >
-            {currentIndex === totalCards - 1 ? 'Finish' : 'Next Question'}
+            {!confidenceLevel
+              ? 'Choose Confidence First'
+              : currentIndex === totalCards - 1
+                ? 'Finish'
+                : 'Next Question'}
           </button>
         </div>
       )}

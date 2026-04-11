@@ -18,6 +18,44 @@ export const REVIEW_INTERVALS = {
   [BOXES.BOX_5]: 30, // 1 month
 };
 
+export const CONFIDENCE_LEVELS = {
+  HARD: 'hard',
+  MEDIUM: 'medium',
+  EASY: 'easy',
+};
+
+const CONFIDENCE_ORDER = [
+  CONFIDENCE_LEVELS.HARD,
+  CONFIDENCE_LEVELS.MEDIUM,
+  CONFIDENCE_LEVELS.EASY,
+];
+
+const normalizeConfidence = (confidence) => {
+  const normalized = String(confidence || '').toLowerCase();
+  return CONFIDENCE_ORDER.includes(normalized)
+    ? normalized
+    : CONFIDENCE_LEVELS.MEDIUM;
+};
+
+const getCorrectConfidenceConfig = (confidence) => {
+  if (confidence === CONFIDENCE_LEVELS.EASY) {
+    return { boxStep: 2, intervalMultiplier: 1.4 };
+  }
+
+  if (confidence === CONFIDENCE_LEVELS.HARD) {
+    return { boxStep: 1, intervalMultiplier: 0.6 };
+  }
+
+  return { boxStep: 1, intervalMultiplier: 1 };
+};
+
+const getIncorrectConfidenceInterval = (confidence) => {
+  if (confidence === CONFIDENCE_LEVELS.HARD) {
+    return 0;
+  }
+  return REVIEW_INTERVALS[BOXES.BOX_1];
+};
+
 export const createCardProgress = (cardId) => ({
   cardId,
   box: BOXES.NEW,
@@ -26,34 +64,40 @@ export const createCardProgress = (cardId) => ({
   correctStreak: 0,
   totalReviews: 0,
   correctReviews: 0,
+  lastConfidence: null,
 });
 
-export const updateCardProgress = (progress, isCorrect) => {
+export const updateCardProgress = (progress, isCorrect, confidence = CONFIDENCE_LEVELS.MEDIUM) => {
   const now = new Date();
   const newProgress = { ...progress };
+  const normalizedConfidence = normalizeConfidence(confidence);
   
   newProgress.lastReviewed = now;
   newProgress.totalReviews += 1;
+  newProgress.lastConfidence = normalizedConfidence;
   
   if (isCorrect) {
     newProgress.correctReviews += 1;
     newProgress.correctStreak += 1;
-    
-    // Move to next box (max BOX_5)
-    if (newProgress.box < BOXES.BOX_5) {
-      newProgress.box += 1;
-    }
+
+    const { boxStep, intervalMultiplier } = getCorrectConfidenceConfig(normalizedConfidence);
+    newProgress.box = Math.min(newProgress.box + boxStep, BOXES.BOX_5);
+
+    const baseIntervalDays = REVIEW_INTERVALS[newProgress.box];
+    const nextIntervalDays = Math.max(1, Math.round(baseIntervalDays * intervalMultiplier));
+    const nextReview = new Date(now);
+    nextReview.setDate(nextReview.getDate() + nextIntervalDays);
+    newProgress.nextReview = nextReview;
   } else {
     newProgress.correctStreak = 0;
     // Move back to BOX_1 if incorrect
     newProgress.box = BOXES.BOX_1;
+
+    const intervalDays = getIncorrectConfidenceInterval(normalizedConfidence);
+    const nextReview = new Date(now);
+    nextReview.setDate(nextReview.getDate() + intervalDays);
+    newProgress.nextReview = nextReview;
   }
-  
-  // Calculate next review date
-  const intervalDays = REVIEW_INTERVALS[newProgress.box];
-  const nextReview = new Date(now);
-  nextReview.setDate(nextReview.getDate() + intervalDays);
-  newProgress.nextReview = nextReview;
   
   return newProgress;
 };
