@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import { DeckProvider } from '../context/DeckContext'
 import Home from '../pages/Home'
@@ -23,6 +23,7 @@ vi.mock('../context/DeckContext', () => ({
     ],
     progress: {},
     deleteDeck: vi.fn(),
+    duplicateDeck: vi.fn(),
     createDeck: vi.fn(),
     setDailyGoal: vi.fn(),
     studyStreak: {
@@ -81,6 +82,7 @@ describe('Home', () => {
   it('shows create deck button', () => {
     renderWithProviders(<Home />)
     expect(screen.getByText('Create New Deck')).toBeInTheDocument()
+    expect(screen.getByTitle('Duplicate deck')).toBeInTheDocument()
   })
 
   it('shows import deck functionality', () => {

@@ -36,6 +36,7 @@ const Home = () => {
   const {
     decks,
     deleteDeck,
+    duplicateDeck,
     createDeck,
     progress,
     studyStreak,
@@ -199,6 +200,10 @@ const Home = () => {
     if (window.confirm('Are you sure you want to delete this deck?')) {
       await deleteDeck(deckId);
     }
+  };
+
+  const handleDuplicate = async (deckId) => {
+    await duplicateDeck(deckId);
   };
 
   return (
@@ -491,6 +496,7 @@ const Home = () => {
                 deck={deck}
                 progress={progress[deck.id] || []}
                 onDelete={handleDelete}
+                onDuplicate={handleDuplicate}
               />
               
               {/* Export button */}

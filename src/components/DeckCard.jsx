@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
-import { BookOpen, Play, Edit, Trash2, Calendar, TrendingUp } from 'lucide-react';
+import { BookOpen, Play, Edit, Trash2, Calendar, Copy } from 'lucide-react';
 import { formatDate } from '../utils/helpers';
 import { getDeckStats } from '../utils/spacedRepetition';
 
-const DeckCard = ({ deck, progress = [], onDelete }) => {
+const DeckCard = ({ deck, progress = [], onDelete, onDuplicate }) => {
   const stats = getDeckStats(progress);
   const tags = Array.isArray(deck.tags) ? deck.tags.slice(0, 3) : [];
 
@@ -62,6 +62,17 @@ const DeckCard = ({ deck, progress = [], onDelete }) => {
               </div>
             )}
           </div>
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              onDuplicate?.(deck.id);
+            }}
+            className="absolute top-4 right-24 p-2 text-text-secondary dark:text-dark-text-secondary hover:text-secondary dark:hover:text-dark-secondary transition-colors bg-card/80 dark:bg-dark-card/80 backdrop-blur-sm rounded-full"
+            title="Duplicate deck"
+            aria-label="Duplicate deck"
+          >
+            <Copy className="w-4 h-4" />
+          </button>
           <button
             onClick={(e) => {
               e.preventDefault();

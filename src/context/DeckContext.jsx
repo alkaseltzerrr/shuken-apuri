@@ -82,6 +82,26 @@ const isSameStudyStreak = (left, right) => {
     left.goalCompletedToday === right.goalCompletedToday;
 };
 
+const getDuplicateTitle = (existingDecks, originalTitle) => {
+  const baseTitle = `${originalTitle} (Copy)`;
+  const existingTitles = new Set(existingDecks.map((deck) => deck.title));
+
+  if (!existingTitles.has(baseTitle)) {
+    return baseTitle;
+  }
+
+  let count = 2;
+  let candidate = `${originalTitle} (Copy ${count})`;
+  while (existingTitles.has(candidate)) {
+    count += 1;
+    candidate = `${originalTitle} (Copy ${count})`;
+  }
+
+  return candidate;
+};
+
+const createDuplicateCardId = (index) => `${Date.now()}-${index}-${Math.random().toString(36).slice(2, 7)}`;
+
 const deckReducer = (state, action) => {
   switch (action.type) {
     case 'SET_DECKS':
@@ -236,6 +256,46 @@ export const DeckProvider = ({ children }) => {
     }
   };
 
+  const duplicateDeck = async (deckId) => {
+    dispatch({ type: 'SET_LOADING', payload: true });
+    try {
+      const sourceDeck = state.decks.find((deck) => deck.id === deckId);
+      if (!sourceDeck) {
+        throw new Error('Deck not found');
+      }
+
+      const nowIso = new Date().toISOString();
+      const duplicatedDeck = {
+        ...sourceDeck,
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        title: getDuplicateTitle(state.decks, sourceDeck.title),
+        cards: (sourceDeck.cards || []).map((card, index) => ({
+          ...card,
+          id: createDuplicateCardId(index),
+        })),
+        createdAt: nowIso,
+        updatedAt: nowIso,
+      };
+
+      try {
+        const createdDeck = await api.createDeck(duplicatedDeck);
+        dispatch({ type: 'ADD_DECK', payload: createdDeck });
+        setLocalDecks(prev => [...prev, createdDeck]);
+      } catch (error) {
+        // Fallback to localStorage
+        dispatch({ type: 'ADD_DECK', payload: duplicatedDeck });
+        setLocalDecks(prev => [...prev, duplicatedDeck]);
+      }
+
+      return duplicatedDeck;
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: error.message });
+      throw error;
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
+    }
+  };
+
   const updateProgress = (deckId, progressData) => {
     const newProgress = {
       ...localProgress,
@@ -289,6 +349,7 @@ export const DeckProvider = ({ children }) => {
     createDeck,
     updateDeck,
     deleteDeck,
+    duplicateDeck,
     updateProgress,
     syncWithBackend,
     recordStudyActivity,
