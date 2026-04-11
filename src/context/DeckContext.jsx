@@ -12,6 +12,7 @@ const DEFAULT_STUDY_STREAK = {
   dailyGoal: 20,
   cardsStudiedToday: 0,
   goalCompletedToday: false,
+  activityHistory: {},
 };
 
 const getDateKey = (date = new Date()) => {
@@ -40,6 +41,24 @@ const getDayDifference = (fromDateKey, toDateKey) => {
   return Math.floor((toDate.getTime() - fromDate.getTime()) / msPerDay);
 };
 
+const normalizeActivityHistory = (history) => {
+  const entries = Object.entries(history || {});
+  const normalized = {};
+  const todayKey = getDateKey();
+
+  entries.forEach(([dateKey, value]) => {
+    const safeValue = Math.max(0, Number(value) || 0);
+    if (safeValue <= 0) return;
+
+    const dayGap = getDayDifference(dateKey, todayKey);
+    if (dayGap < 0 || dayGap > 365) return;
+
+    normalized[dateKey] = safeValue;
+  });
+
+  return normalized;
+};
+
 const normalizeStudyStreak = (value) => {
   const normalized = {
     ...DEFAULT_STUDY_STREAK,
@@ -50,6 +69,7 @@ const normalizeStudyStreak = (value) => {
   normalized.longestStreak = Math.max(0, Number(normalized.longestStreak) || 0);
   normalized.dailyGoal = Math.max(1, Number(normalized.dailyGoal) || DEFAULT_STUDY_STREAK.dailyGoal);
   normalized.cardsStudiedToday = Math.max(0, Number(normalized.cardsStudiedToday) || 0);
+  normalized.activityHistory = normalizeActivityHistory(normalized.activityHistory);
 
   const todayKey = getDateKey();
   const dayGap = normalized.lastStudyDate
@@ -79,7 +99,8 @@ const isSameStudyStreak = (left, right) => {
     left.lastStudyDate === right.lastStudyDate &&
     left.dailyGoal === right.dailyGoal &&
     left.cardsStudiedToday === right.cardsStudiedToday &&
-    left.goalCompletedToday === right.goalCompletedToday;
+    left.goalCompletedToday === right.goalCompletedToday &&
+    JSON.stringify(left.activityHistory || {}) === JSON.stringify(right.activityHistory || {});
 };
 
 const getDuplicateTitle = (existingDecks, originalTitle) => {
@@ -322,6 +343,10 @@ export const DeckProvider = ({ children }) => {
     }
 
     updatedStreak.cardsStudiedToday += safeCardsReviewed;
+    updatedStreak.activityHistory = {
+      ...(updatedStreak.activityHistory || {}),
+      [todayKey]: Math.max(0, Number(updatedStreak.activityHistory?.[todayKey]) || 0) + safeCardsReviewed,
+    };
     updatedStreak.goalCompletedToday = updatedStreak.cardsStudiedToday >= updatedStreak.dailyGoal;
     updatedStreak.longestStreak = Math.max(updatedStreak.longestStreak, updatedStreak.currentStreak);
 

@@ -1,11 +1,55 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDeck } from '../context/DeckContext';
-import { Plus, Upload, BookOpen, CalendarDays, Play, Flame, BellRing, Target, Filter, X } from 'lucide-react';
+import { Plus, Upload, BookOpen, CalendarDays, Play, Flame, BellRing, Target, Filter, X, Activity } from 'lucide-react';
 import DeckCard from '../components/DeckCard';
 import { exportDeck, importDeck } from '../utils/helpers';
 
 const SORT_ORDER = ['Beginner', 'Intermediate', 'Advanced'];
+const HEATMAP_DAYS = 84;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+const getDateKey = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const getHeatmapCells = (history = {}) => {
+  const today = new Date();
+  const orderedCells = [];
+
+  for (let offset = HEATMAP_DAYS - 1; offset >= 0; offset -= 1) {
+    const date = new Date(today.getTime() - (offset * DAY_MS));
+    const dateKey = getDateKey(date);
+    orderedCells.push({
+      date,
+      dateKey,
+      count: Math.max(0, Number(history[dateKey]) || 0),
+    });
+  }
+
+  return orderedCells;
+};
+
+const getHeatmapLevelClass = (count, maxCount) => {
+  if (count <= 0) return 'bg-text-secondary/15 dark:bg-dark-text-secondary/20';
+
+  const ratio = maxCount > 0 ? count / maxCount : 0;
+  if (ratio < 0.25) return 'bg-secondary/30 dark:bg-dark-secondary/35';
+  if (ratio < 0.5) return 'bg-secondary/50 dark:bg-dark-secondary/55';
+  if (ratio < 0.75) return 'bg-secondary/70 dark:bg-dark-secondary/75';
+  return 'bg-secondary dark:bg-dark-secondary';
+};
+
+const toWeekColumns = (cells) => {
+  const columns = [];
+  for (let i = 0; i < cells.length; i += 7) {
+    columns.push(cells.slice(i, i + 7));
+  }
+  return columns;
+};
 
 const sortOptions = (values) => {
   return [...values].sort((left, right) => {
@@ -117,6 +161,16 @@ const Home = () => {
     ? Math.min(100, Math.round((streak.cardsStudiedToday / streak.dailyGoal) * 100))
     : 0;
   const cardsRemaining = Math.max(streak.dailyGoal - streak.cardsStudiedToday, 0);
+  const heatmapCells = useMemo(() => getHeatmapCells(streak.activityHistory), [streak.activityHistory]);
+  const maxHeatmapCount = Math.max(0, ...heatmapCells.map((cell) => cell.count));
+  const heatmapColumns = useMemo(() => toWeekColumns(heatmapCells), [heatmapCells]);
+  const activeHeatmapDays = heatmapCells.filter((cell) => cell.count > 0).length;
+  const bestHeatmapDay = heatmapCells.reduce((best, cell) => {
+    if (!best || cell.count > best.count) {
+      return cell;
+    }
+    return best;
+  }, null);
 
   let reminderMessage = 'A short review today keeps your learning rhythm steady.';
   if (streak.goalCompletedToday) {
@@ -305,6 +359,41 @@ const Home = () => {
           <div className="flex items-start space-x-2 text-sm text-text-secondary dark:text-dark-text-secondary bg-background/60 dark:bg-dark-background/60 rounded-lg px-3 py-2 border border-text-secondary/10 dark:border-dark-text-secondary/10">
             <BellRing className="w-4 h-4 mt-0.5 text-accent dark:text-dark-accent" />
             <span>{reminderMessage}</span>
+          </div>
+
+          <div className="mt-5 pt-4 border-t border-text-secondary/15 dark:border-dark-text-secondary/20">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center space-x-2">
+                <Activity className="w-4 h-4 text-secondary dark:text-dark-secondary" />
+                <div className="text-sm font-medium text-text-primary dark:text-dark-text-primary">Consistency Heatmap</div>
+              </div>
+              <div className="text-xs text-text-secondary dark:text-dark-text-secondary">Last 12 weeks</div>
+            </div>
+
+            <div className="overflow-x-auto pb-1">
+              <div className="inline-flex gap-1 min-w-max">
+                {heatmapColumns.map((week, weekIndex) => (
+                  <div key={weekIndex} className="flex flex-col gap-1">
+                    {week.map((cell) => (
+                      <div
+                        key={cell.dateKey}
+                        className={`w-3.5 h-3.5 rounded-[3px] border border-black/5 dark:border-white/5 ${getHeatmapLevelClass(cell.count, maxHeatmapCount)}`}
+                        title={`${cell.date.toLocaleDateString()} - ${cell.count} card${cell.count === 1 ? '' : 's'}`}
+                      />
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-text-secondary dark:text-dark-text-secondary">
+              <div>
+                Active days: <span className="font-medium text-text-primary dark:text-dark-text-primary">{activeHeatmapDays}</span>
+              </div>
+              <div>
+                Best day: <span className="font-medium text-text-primary dark:text-dark-text-primary">{bestHeatmapDay?.count || 0} cards</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -33,6 +33,11 @@ vi.mock('../context/DeckContext', () => ({
       dailyGoal: 20,
       cardsStudiedToday: 4,
       goalCompletedToday: false,
+      activityHistory: {
+        '2026-04-08': 5,
+        '2026-04-09': 3,
+        '2026-04-10': 4,
+      },
     },
   }),
 }))
@@ -70,6 +75,7 @@ describe('Home', () => {
     expect(screen.getByText('Study Streak')).toBeInTheDocument()
     expect(screen.getByText('Current Streak')).toBeInTheDocument()
     expect(screen.getByText('Daily goal progress')).toBeInTheDocument()
+    expect(screen.getByText('Consistency Heatmap')).toBeInTheDocument()
   })
 
   it('shows smart filter controls', () => {
