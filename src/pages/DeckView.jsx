@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useDeck } from '../context/DeckContext';
 import { Plus, Play, Edit, ArrowLeft, Trash2 } from 'lucide-react';
 import Card from '../components/Card';
-import { getDeckStats } from '../utils/spacedRepetition';
+import { getDeckStats, getLeechCards } from '../utils/spacedRepetition';
 
 const DeckView = () => {
   const { deckId } = useParams();
@@ -24,6 +24,14 @@ const DeckView = () => {
   }, [deckId, decks, navigate]);
 
   const stats = deck ? getDeckStats(progress[deckId] || []) : null;
+  const leechCards = deck
+    ? getLeechCards(progress[deckId] || [])
+      .map((item) => ({
+        ...item,
+        card: deck.cards?.find((card) => card.id === item.cardId),
+      }))
+      .filter((item) => item.card)
+    : [];
 
   const handleAddCard = async (e) => {
     e.preventDefault();
@@ -119,7 +127,7 @@ const DeckView = () => {
           {/* Stats */}
           {stats && stats.total > 0 && (
             <div className="bg-card/80 dark:bg-dark-card/80 backdrop-blur-sm rounded-lg p-4 mb-4">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
                 <div>
                   <div className="text-2xl font-bold text-primary dark:text-dark-primary">{stats.total}</div>
                   <div className="text-sm text-text-secondary dark:text-dark-text-secondary">Total Cards</div>
@@ -135,6 +143,10 @@ const DeckView = () => {
                 <div>
                   <div className="text-2xl font-bold text-primary dark:text-dark-primary">{stats.accuracy}%</div>
                   <div className="text-sm text-text-secondary dark:text-dark-text-secondary">Accuracy</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-warning dark:text-dark-warning">{stats.leechCards}</div>
+                  <div className="text-sm text-text-secondary dark:text-dark-text-secondary">Leeches</div>
                 </div>
               </div>
             </div>
@@ -254,6 +266,30 @@ const DeckView = () => {
             <Plus className="w-4 h-4" />
             <span>Add Card</span>
           </button>
+        </div>
+      )}
+
+      {leechCards.length > 0 && (
+        <div className="mb-6 bg-warning/10 dark:bg-dark-warning/10 border border-warning/25 dark:border-dark-warning/25 rounded-xl p-4">
+          <h3 className="text-lg font-semibold text-warning dark:text-dark-warning mb-2">
+            Leech Cards Needing Attention
+          </h3>
+          <div className="space-y-2">
+            {leechCards.slice(0, 3).map((item) => (
+              <div
+                key={item.cardId}
+                className="flex items-start justify-between gap-4 bg-card/70 dark:bg-dark-card/70 rounded-lg px-3 py-2"
+              >
+                <div className="text-text-primary dark:text-dark-text-primary">
+                  {item.card.front}
+                </div>
+                <div className="text-xs text-text-secondary dark:text-dark-text-secondary text-right shrink-0">
+                  <div>{item.incorrectStreak} wrong in a row</div>
+                  <div>Leech score {item.leechCount}</div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

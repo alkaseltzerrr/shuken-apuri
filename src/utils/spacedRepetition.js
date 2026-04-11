@@ -62,14 +62,35 @@ export const createCardProgress = (cardId) => ({
   lastReviewed: null,
   nextReview: new Date(),
   correctStreak: 0,
+  incorrectStreak: 0,
   totalReviews: 0,
   correctReviews: 0,
+  leechCount: 0,
+  isLeech: false,
   lastConfidence: null,
 });
 
+const getSafeProgress = (progress) => ({
+  ...progress,
+  correctStreak: Number(progress.correctStreak) || 0,
+  incorrectStreak: Number(progress.incorrectStreak) || 0,
+  totalReviews: Number(progress.totalReviews) || 0,
+  correctReviews: Number(progress.correctReviews) || 0,
+  leechCount: Number(progress.leechCount) || 0,
+  isLeech: Boolean(progress.isLeech),
+});
+
+const shouldMarkLeech = (progress) => {
+  const attempts = progress.totalReviews;
+  const accuracy = attempts > 0 ? progress.correctReviews / attempts : 0;
+
+  return progress.incorrectStreak >= 3 ||
+    (attempts >= 6 && accuracy < 0.45 && progress.leechCount >= 4);
+};
+
 export const updateCardProgress = (progress, isCorrect, confidence = CONFIDENCE_LEVELS.MEDIUM) => {
   const now = new Date();
-  const newProgress = { ...progress };
+  const newProgress = getSafeProgress({ ...progress });
   const normalizedConfidence = normalizeConfidence(confidence);
   
   newProgress.lastReviewed = now;
@@ -79,6 +100,7 @@ export const updateCardProgress = (progress, isCorrect, confidence = CONFIDENCE_
   if (isCorrect) {
     newProgress.correctReviews += 1;
     newProgress.correctStreak += 1;
+    newProgress.incorrectStreak = 0;
 
     const { boxStep, intervalMultiplier } = getCorrectConfidenceConfig(normalizedConfidence);
     newProgress.box = Math.min(newProgress.box + boxStep, BOXES.BOX_5);
@@ -90,6 +112,8 @@ export const updateCardProgress = (progress, isCorrect, confidence = CONFIDENCE_
     newProgress.nextReview = nextReview;
   } else {
     newProgress.correctStreak = 0;
+    newProgress.incorrectStreak += 1;
+    newProgress.leechCount += normalizedConfidence === CONFIDENCE_LEVELS.HARD ? 2 : 1;
     // Move back to BOX_1 if incorrect
     newProgress.box = BOXES.BOX_1;
 
@@ -98,6 +122,8 @@ export const updateCardProgress = (progress, isCorrect, confidence = CONFIDENCE_
     nextReview.setDate(nextReview.getDate() + intervalDays);
     newProgress.nextReview = nextReview;
   }
+
+  newProgress.isLeech = shouldMarkLeech(newProgress);
   
   return newProgress;
 };
@@ -109,13 +135,28 @@ export const getCardsToReview = (progressData) => {
   );
 };
 
+export const getLeechCards = (progressData) => {
+  return progressData
+    .map((progress) => getSafeProgress(progress))
+    .filter((progress) => progress.isLeech || shouldMarkLeech(progress))
+    .sort((left, right) => {
+      if (right.leechCount !== left.leechCount) {
+        return right.leechCount - left.leechCount;
+      }
+
+      return right.incorrectStreak - left.incorrectStreak;
+    });
+};
+
 export const getDeckStats = (progressData) => {
   const total = progressData.length;
-  const reviewed = progressData.filter(p => p.totalReviews > 0).length;
-  const mastered = progressData.filter(p => p.box === BOXES.BOX_5).length;
-  const dueForReview = getCardsToReview(progressData).length;
+  const safeProgress = progressData.map((progress) => getSafeProgress(progress));
+  const reviewed = safeProgress.filter(p => p.totalReviews > 0).length;
+  const mastered = safeProgress.filter(p => p.box === BOXES.BOX_5).length;
+  const dueForReview = getCardsToReview(safeProgress).length;
+  const leechCards = getLeechCards(safeProgress).length;
   
-  const accuracy = progressData.reduce((acc, p) => {
+  const accuracy = safeProgress.reduce((acc, p) => {
     if (p.totalReviews === 0) return acc;
     return acc + (p.correctReviews / p.totalReviews);
   }, 0) / Math.max(reviewed, 1);
@@ -125,6 +166,7 @@ export const getDeckStats = (progressData) => {
     reviewed,
     mastered,
     dueForReview,
+    leechCards,
     accuracy: Math.round(accuracy * 100),
     progress: Math.round((reviewed / total) * 100),
   };
