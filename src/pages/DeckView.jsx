@@ -12,7 +12,7 @@ const DeckView = () => {
   const [deck, setDeck] = useState(null);
   const [editingCard, setEditingCard] = useState(null);
   const [showAddCard, setShowAddCard] = useState(false);
-  const [cardForm, setCardForm] = useState({ front: '', back: '' });
+  const [cardForm, setCardForm] = useState({ front: '', back: '', hint: '', example: '' });
 
   useEffect(() => {
     const foundDeck = decks.find(d => d.id === deckId);
@@ -33,18 +33,25 @@ const DeckView = () => {
       id: Date.now().toString(),
       front: cardForm.front.trim(),
       back: cardForm.back.trim(),
+      hint: cardForm.hint.trim(),
+      example: cardForm.example.trim(),
     };
 
     const updatedCards = [...(deck.cards || []), newCard];
     await updateDeck(deckId, { cards: updatedCards });
     
-    setCardForm({ front: '', back: '' });
+    setCardForm({ front: '', back: '', hint: '', example: '' });
     setShowAddCard(false);
   };
 
   const handleEditCard = async (card) => {
     setEditingCard(card);
-    setCardForm({ front: card.front, back: card.back });
+    setCardForm({
+      front: card.front,
+      back: card.back,
+      hint: card.hint || '',
+      example: card.example || '',
+    });
   };
 
   const handleUpdateCard = async (e) => {
@@ -53,14 +60,20 @@ const DeckView = () => {
 
     const updatedCards = deck.cards.map(card =>
       card.id === editingCard.id
-        ? { ...card, front: cardForm.front.trim(), back: cardForm.back.trim() }
+        ? {
+          ...card,
+          front: cardForm.front.trim(),
+          back: cardForm.back.trim(),
+          hint: cardForm.hint.trim(),
+          example: cardForm.example.trim(),
+        }
         : card
     );
 
     await updateDeck(deckId, { cards: updatedCards });
     
     setEditingCard(null);
-    setCardForm({ front: '', back: '' });
+    setCardForm({ front: '', back: '', hint: '', example: '' });
   };
 
   const handleDeleteCard = async (cardId) => {
@@ -72,7 +85,7 @@ const DeckView = () => {
 
   const cancelEdit = () => {
     setEditingCard(null);
-    setCardForm({ front: '', back: '' });
+    setCardForm({ front: '', back: '', hint: '', example: '' });
     setShowAddCard(false);
   };
 
@@ -181,6 +194,34 @@ const DeckView = () => {
                   rows="3"
                   required
                 />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-text-primary dark:text-dark-text-primary mb-1">
+                    Hint (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={cardForm.hint}
+                    onChange={(e) => setCardForm(prev => ({ ...prev, hint: e.target.value }))}
+                    placeholder="Clue shown before answering"
+                    className="w-full px-3 py-2 border border-text-secondary/30 dark:border-dark-text-secondary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-dark-secondary bg-background dark:bg-dark-background text-text-primary dark:text-dark-text-primary placeholder-text-secondary dark:placeholder-dark-text-secondary"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-text-primary dark:text-dark-text-primary mb-1">
+                    Example (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={cardForm.example}
+                    onChange={(e) => setCardForm(prev => ({ ...prev, example: e.target.value }))}
+                    placeholder="Extra context shown on reveal"
+                    className="w-full px-3 py-2 border border-text-secondary/30 dark:border-dark-text-secondary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-dark-secondary bg-background dark:bg-dark-background text-text-primary dark:text-dark-text-primary placeholder-text-secondary dark:placeholder-dark-text-secondary"
+                  />
+                </div>
               </div>
             </div>
             

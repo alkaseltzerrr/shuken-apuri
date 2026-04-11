@@ -54,6 +54,23 @@ const Card = ({ card, onDelete, onEdit }) => {
             <div className="text-text-primary dark:text-dark-text-primary whitespace-pre-wrap">
               {card.back}
             </div>
+
+            {(card.hint || card.example) && (
+              <div className="mt-3 space-y-2">
+                {card.hint && (
+                  <div>
+                    <div className="text-sm text-text-secondary dark:text-dark-text-secondary mb-1 font-medium">Hint:</div>
+                    <div className="text-text-primary dark:text-dark-text-primary">{card.hint}</div>
+                  </div>
+                )}
+                {card.example && (
+                  <div>
+                    <div className="text-sm text-text-secondary dark:text-dark-text-secondary mb-1 font-medium">Example:</div>
+                    <div className="text-text-primary dark:text-dark-text-primary whitespace-pre-wrap">{card.example}</div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>

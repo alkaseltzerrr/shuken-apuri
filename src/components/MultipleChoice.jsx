@@ -14,6 +14,8 @@ const MultipleChoice = ({
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [showResult, setShowResult] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+  const [showSupport, setShowSupport] = useState(false);
+  const hasSupport = Boolean(card?.hint || card?.example);
 
   useEffect(() => {
     // Generate options when card changes (only when card.id changes)
@@ -22,6 +24,7 @@ const MultipleChoice = ({
     setOptions(shuffleArray(allOptions));
     setSelectedAnswer(null);
     setShowResult(false);
+    setShowSupport(false);
   }, [card.id]); // Only depend on card.id to prevent constant regeneration
 
   const handleAnswerSelect = (answer) => {
@@ -91,6 +94,34 @@ const MultipleChoice = ({
           )}
         </div>
       </div>
+
+      {hasSupport && !showResult && (
+        <div className="mb-4">
+          <button
+            onClick={() => setShowSupport(prev => !prev)}
+            className="text-sm px-4 py-2 rounded-lg bg-accent/15 dark:bg-dark-accent/20 text-accent dark:text-dark-accent hover:bg-accent/25 dark:hover:bg-dark-accent/30 transition-colors"
+          >
+            {showSupport ? 'Hide Hint & Example' : 'Show Hint & Example'}
+          </button>
+
+          {showSupport && (
+            <div className="mt-3 bg-card/85 dark:bg-dark-card/85 rounded-xl border border-accent/20 dark:border-dark-accent/25 p-4 text-left space-y-2">
+              {card.hint && (
+                <div>
+                  <div className="text-xs uppercase tracking-wide text-text-secondary dark:text-dark-text-secondary">Hint</div>
+                  <div className="text-text-primary dark:text-dark-text-primary">{card.hint}</div>
+                </div>
+              )}
+              {card.example && (
+                <div>
+                  <div className="text-xs uppercase tracking-wide text-text-secondary dark:text-dark-text-secondary">Example</div>
+                  <div className="text-text-primary dark:text-dark-text-primary whitespace-pre-wrap">{card.example}</div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Options */}
       <div className="space-y-3 mb-6">

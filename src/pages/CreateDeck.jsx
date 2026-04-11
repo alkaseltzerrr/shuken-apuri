@@ -16,7 +16,7 @@ const CreateDeck = () => {
     tags: '',
   });
   const [cards, setCards] = useState([
-    { id: '1', front: '', back: '' },
+    { id: '1', front: '', back: '', hint: '', example: '' },
   ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -35,6 +35,8 @@ const CreateDeck = () => {
       id: Date.now().toString(),
       front: '',
       back: '',
+      hint: '',
+      example: '',
     };
     setCards(prev => [...prev, newCard]);
   };
@@ -78,6 +80,8 @@ const CreateDeck = () => {
           ...card,
           front: card.front.trim(),
           back: card.back.trim(),
+          hint: card.hint?.trim() || '',
+          example: card.example?.trim() || '',
         })),
       });
 
@@ -265,6 +269,34 @@ const CreateDeck = () => {
                       placeholder="Enter the answer..."
                       className="w-full px-3 py-2 border border-text-secondary/30 dark:border-dark-text-secondary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-dark-primary bg-background dark:bg-dark-background text-text-primary dark:text-dark-text-primary placeholder-text-secondary dark:placeholder-dark-text-secondary"
                       rows="3"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                  <div>
+                    <label className="block text-sm font-medium text-text-primary dark:text-dark-text-primary mb-1">
+                      Hint (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={card.hint || ''}
+                      onChange={(e) => handleCardChange(card.id, 'hint', e.target.value)}
+                      placeholder="Give a clue without revealing the full answer"
+                      className="w-full px-3 py-2 border border-text-secondary/30 dark:border-dark-text-secondary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-dark-primary bg-background dark:bg-dark-background text-text-primary dark:text-dark-text-primary placeholder-text-secondary dark:placeholder-dark-text-secondary"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-text-primary dark:text-dark-text-primary mb-1">
+                      Example (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={card.example || ''}
+                      onChange={(e) => handleCardChange(card.id, 'example', e.target.value)}
+                      placeholder="Add a quick example or context"
+                      className="w-full px-3 py-2 border border-text-secondary/30 dark:border-dark-text-secondary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-dark-primary bg-background dark:bg-dark-background text-text-primary dark:text-dark-text-primary placeholder-text-secondary dark:placeholder-dark-text-secondary"
                     />
                   </div>
                 </div>

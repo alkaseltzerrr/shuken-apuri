@@ -12,8 +12,8 @@ export const generateSampleDecks = () => [
     difficulty: 'Beginner',
     tags: ['kana', 'reading', 'pronunciation'],
     cards: [
-      { id: '1', front: 'あ', back: 'a' },
-      { id: '2', front: 'か', back: 'ka' },
+      { id: '1', front: 'あ', back: 'a', hint: 'First vowel sound in hiragana.', example: 'A like in "father".' },
+      { id: '2', front: 'か', back: 'ka', hint: 'Think of the K sound + a.', example: 'Appears in words like かさ (kasa).' },
       { id: '3', front: 'さ', back: 'sa' },
       { id: '4', front: 'た', back: 'ta' },
       { id: '5', front: 'な', back: 'na' },
@@ -31,8 +31,8 @@ export const generateSampleDecks = () => [
     difficulty: 'Intermediate',
     tags: ['arithmetic', 'numbers', 'foundations'],
     cards: [
-      { id: '1', front: 'What is 7 × 8?', back: '56' },
-      { id: '2', front: 'What is 144 ÷ 12?', back: '12' },
+      { id: '1', front: 'What is 7 × 8?', back: '56', hint: 'Use 7 × 4 and double it.', example: '7 × 4 = 28, then 28 × 2 = 56.' },
+      { id: '2', front: 'What is 144 ÷ 12?', back: '12', hint: 'What times 12 equals 144?', example: '12 × 12 = 144.' },
       { id: '3', front: 'What is the square root of 64?', back: '8' },
       { id: '4', front: 'What is 15% of 200?', back: '30' },
       { id: '5', front: 'What is 2³?', back: '8' },
@@ -115,6 +115,8 @@ export const exportDeck = (deck) => {
 const HEADER_ALIASES = {
   front: ['front', 'question', 'prompt', 'term', 'q'],
   back: ['back', 'answer', 'definition', 'a'],
+  hint: ['hint', 'clue', 'tip'],
+  example: ['example', 'usage', 'sample'],
   title: ['title', 'deck', 'decktitle', 'deck_title'],
   description: ['description', 'desc', 'notes'],
   language: ['language', 'lang'],
@@ -218,6 +220,8 @@ const normalizeDeckFromJson = (deck) => {
       id: card.id || `${Date.now()}-${index}`,
       front: String(card.front || '').trim(),
       back: String(card.back || '').trim(),
+      hint: String(card.hint || '').trim(),
+      example: String(card.example || '').trim(),
     }))
     .filter((card) => card.front && card.back);
 
@@ -257,6 +261,8 @@ const parseCsvDeck = (text, fileName) => {
 
   const frontIndex = getHeaderIndex(headers, 'front');
   const backIndex = getHeaderIndex(headers, 'back');
+  const hintIndex = getHeaderIndex(headers, 'hint');
+  const exampleIndex = getHeaderIndex(headers, 'example');
 
   if (frontIndex === -1 || backIndex === -1) {
     throw new Error('CSV must include front and back columns');
@@ -267,6 +273,8 @@ const parseCsvDeck = (text, fileName) => {
       id: `${Date.now()}-${index}`,
       front: String(row[frontIndex] || '').trim(),
       back: String(row[backIndex] || '').trim(),
+      hint: hintIndex !== -1 ? String(row[hintIndex] || '').trim() : '',
+      example: exampleIndex !== -1 ? String(row[exampleIndex] || '').trim() : '',
     }))
     .filter((card) => card.front && card.back);
 
