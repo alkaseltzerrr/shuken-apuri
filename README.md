@@ -1,7 +1,7 @@
 
 # 集験アプリ — Shuken Apuri 🌸💕
 
-~ A kawaii flashcard app for focused, fun learning! ~
+~ A kawaii flashcard app for focused, fun learning!! ~
 
 Shuken Apuri is a playful blend of "shuchuu" (focus) and "shiken" (exam) — like turning study sessions into cozy adventures! (＾▽＾) Designed for short, happy bursts of learning with soft pastels and gentle animations. Whether memorizing hiragana or math facts, make studying feel like a warm hug. ✨
 
