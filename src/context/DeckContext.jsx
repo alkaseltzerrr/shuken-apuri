@@ -15,6 +15,10 @@ const DEFAULT_STUDY_STREAK = {
   activityHistory: {},
 };
 
+const DEFAULT_RECENT_MISTAKES = {};
+const MISTAKE_HISTORY_DAYS = 14;
+const MISTAKE_HISTORY_MAX_PER_DECK = 200;
+
 const getDateKey = (date = new Date()) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -123,6 +127,45 @@ const getDuplicateTitle = (existingDecks, originalTitle) => {
 
 const createDuplicateCardId = (index) => `${Date.now()}-${index}-${Math.random().toString(36).slice(2, 7)}`;
 
+const normalizeRecentMistakes = (history, decks) => {
+  const now = new Date();
+  const byDeck = history || {};
+  const validCardIdsByDeck = new Map(
+    (decks || []).map((deck) => [deck.id, new Set((deck.cards || []).map((card) => card.id))])
+  );
+
+  const normalized = {};
+
+  Object.entries(byDeck).forEach(([deckId, entries]) => {
+    if (!Array.isArray(entries)) return;
+
+    const validCardIds = validCardIdsByDeck.get(deckId);
+    if (!validCardIds) return;
+
+    const sanitized = entries
+      .map((entry) => ({
+        cardId: entry?.cardId,
+        confidence: String(entry?.confidence || 'medium').toLowerCase(),
+        at: entry?.at,
+      }))
+      .filter((entry) => {
+        if (!entry.cardId || !validCardIds.has(entry.cardId)) return false;
+        const atDate = new Date(entry.at);
+        if (Number.isNaN(atDate.getTime())) return false;
+        const daysAgo = (now.getTime() - atDate.getTime()) / (24 * 60 * 60 * 1000);
+        return daysAgo >= 0 && daysAgo <= MISTAKE_HISTORY_DAYS;
+      })
+      .sort((left, right) => new Date(right.at).getTime() - new Date(left.at).getTime())
+      .slice(0, MISTAKE_HISTORY_MAX_PER_DECK);
+
+    if (sanitized.length > 0) {
+      normalized[deckId] = sanitized;
+    }
+  });
+
+  return normalized;
+};
+
 const deckReducer = (state, action) => {
   switch (action.type) {
     case 'SET_DECKS':
@@ -153,6 +196,8 @@ const deckReducer = (state, action) => {
       };
     case 'SET_STREAK':
       return { ...state, studyStreak: action.payload };
+    case 'SET_RECENT_MISTAKES':
+      return { ...state, recentMistakes: action.payload };
     case 'SET_LOADING':
       return { ...state, loading: action.payload };
     case 'SET_ERROR':
@@ -166,6 +211,7 @@ const initialState = {
   decks: [],
   progress: {},
   studyStreak: DEFAULT_STUDY_STREAK,
+  recentMistakes: DEFAULT_RECENT_MISTAKES,
   loading: false,
   error: null,
 };
@@ -175,6 +221,7 @@ export const DeckProvider = ({ children }) => {
   const [localDecks, setLocalDecks] = useLocalStorage('shuken-decks', []);
   const [localProgress, setLocalProgress] = useLocalStorage('shuken-progress', {});
   const [localStudyStreak, setLocalStudyStreak] = useLocalStorage('shuken-study-streak', DEFAULT_STUDY_STREAK);
+  const [localRecentMistakes, setLocalRecentMistakes] = useLocalStorage('shuken-recent-mistakes', DEFAULT_RECENT_MISTAKES);
 
   // Initialize with sample decks if none exist
   useEffect(() => {
@@ -192,7 +239,21 @@ export const DeckProvider = ({ children }) => {
     if (!isSameStudyStreak(normalizedStreak, localStudyStreak)) {
       setLocalStudyStreak(normalizedStreak);
     }
-  }, [localDecks, localProgress, localStudyStreak, setLocalDecks, setLocalStudyStreak]);
+
+    const normalizedRecentMistakes = normalizeRecentMistakes(localRecentMistakes, localDecks);
+    dispatch({ type: 'SET_RECENT_MISTAKES', payload: normalizedRecentMistakes });
+    if (JSON.stringify(normalizedRecentMistakes) !== JSON.stringify(localRecentMistakes || {})) {
+      setLocalRecentMistakes(normalizedRecentMistakes);
+    }
+  }, [
+    localDecks,
+    localProgress,
+    localStudyStreak,
+    localRecentMistakes,
+    setLocalDecks,
+    setLocalStudyStreak,
+    setLocalRecentMistakes,
+  ]);
 
   // Try to sync with backend
   const syncWithBackend = async () => {
@@ -326,6 +387,39 @@ export const DeckProvider = ({ children }) => {
     dispatch({ type: 'UPDATE_DECK_PROGRESS', payload: { deckId, progress: progressData } });
   };
 
+  const recordSessionMistakes = (deckId, answerLog = []) => {
+    if (!deckId || !Array.isArray(answerLog) || answerLog.length === 0) {
+      return;
+    }
+
+    const sourceDeck = state.decks.find((deck) => deck.id === deckId);
+    if (!sourceDeck) return;
+
+    const validCardIds = new Set((sourceDeck.cards || []).map((card) => card.id));
+    const nowIso = new Date().toISOString();
+    const newEntries = answerLog
+      .filter((entry) => !entry.isCorrect && validCardIds.has(entry.cardId))
+      .map((entry) => ({
+        cardId: entry.cardId,
+        confidence: String(entry.confidence || 'medium').toLowerCase(),
+        at: nowIso,
+      }));
+
+    if (newEntries.length === 0) return;
+
+    const merged = {
+      ...(localRecentMistakes || {}),
+      [deckId]: [
+        ...newEntries,
+        ...((localRecentMistakes || {})[deckId] || []),
+      ],
+    };
+
+    const normalizedRecentMistakes = normalizeRecentMistakes(merged, state.decks);
+    setLocalRecentMistakes(normalizedRecentMistakes);
+    dispatch({ type: 'SET_RECENT_MISTAKES', payload: normalizedRecentMistakes });
+  };
+
   const recordStudyActivity = (cardsReviewed = 0) => {
     const safeCardsReviewed = Math.max(0, Number(cardsReviewed) || 0);
     const todayKey = getDateKey();
@@ -376,6 +470,7 @@ export const DeckProvider = ({ children }) => {
     deleteDeck,
     duplicateDeck,
     updateProgress,
+    recordSessionMistakes,
     syncWithBackend,
     recordStudyActivity,
     setDailyGoal,

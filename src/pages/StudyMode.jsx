@@ -20,6 +20,7 @@ const SESSION_PRESETS = {
   TEN_CARDS: 'ten_cards',
   DUE_ONLY: 'due_only',
   NEW_ONLY: 'new_only',
+  MISTAKE_REVIEW: 'mistake_review',
 };
 
 const PRESET_OPTIONS = [
@@ -28,11 +29,13 @@ const PRESET_OPTIONS = [
   { id: SESSION_PRESETS.TEN_CARDS, label: '10 Cards' },
   { id: SESSION_PRESETS.DUE_ONLY, label: 'Due Only' },
   { id: SESSION_PRESETS.NEW_ONLY, label: 'New Only' },
+  { id: SESSION_PRESETS.MISTAKE_REVIEW, label: 'Mistake Review' },
 ];
 
 const QUICK_PRESET_CARD_TARGET = 12;
 const TEN_CARD_TARGET = 10;
 const SMART_MIN_CARD_TARGET = 5;
+const MISTAKE_REVIEW_CARD_TARGET = 15;
 
 const DEFAULT_CONFIDENCE = 'medium';
 
@@ -55,6 +58,10 @@ const getPresetEmptyMessage = (preset) => {
 
   if (preset === SESSION_PRESETS.NEW_ONLY) {
     return 'No new cards left in this deck.';
+  }
+
+  if (preset === SESSION_PRESETS.MISTAKE_REVIEW) {
+    return 'No recent incorrect cards found for review.';
   }
 
   return 'No cards available for this preset.';
@@ -152,7 +159,7 @@ const initializeDeckProgress = (cards, currentProgress) => {
   return cards.map((card) => progressMap.get(card.id) || createCardProgress(card.id));
 };
 
-const getCardsForPreset = (cards, progressEntries, preset) => {
+const getCardsForPreset = (cards, progressEntries, preset, recentMistakeEntries = []) => {
   const now = new Date();
   const progressByCardId = new Map(progressEntries.map((item) => [item.cardId, item]));
   const dueCards = cards
@@ -187,6 +194,34 @@ const getCardsForPreset = (cards, progressEntries, preset) => {
     return shuffleCards(cards).slice(0, TEN_CARD_TARGET);
   }
 
+  if (preset === SESSION_PRESETS.MISTAKE_REVIEW) {
+    const mistakeFrequency = new Map();
+
+    (recentMistakeEntries || []).forEach((entry) => {
+      if (!entry?.cardId) return;
+      const current = mistakeFrequency.get(entry.cardId) || 0;
+      const weight = entry.confidence === 'hard' ? 2 : 1;
+      mistakeFrequency.set(entry.cardId, current + weight);
+    });
+
+    const rankedMistakeCards = cards
+      .filter((card) => mistakeFrequency.has(card.id))
+      .sort((left, right) => {
+        const leftScore = mistakeFrequency.get(left.id) || 0;
+        const rightScore = mistakeFrequency.get(right.id) || 0;
+        if (rightScore !== leftScore) {
+          return rightScore - leftScore;
+        }
+
+        const leftDue = new Date(progressByCardId.get(left.id)?.nextReview || now).getTime();
+        const rightDue = new Date(progressByCardId.get(right.id)?.nextReview || now).getTime();
+        return leftDue - rightDue;
+      })
+      .slice(0, MISTAKE_REVIEW_CARD_TARGET);
+
+    return rankedMistakeCards;
+  }
+
   if (preset === SESSION_PRESETS.QUICK_5) {
     let quickCards = dueCards.slice(0, QUICK_PRESET_CARD_TARGET);
     if (quickCards.length < QUICK_PRESET_CARD_TARGET) {
@@ -208,7 +243,7 @@ const getCardsForPreset = (cards, progressEntries, preset) => {
 const StudyMode = () => {
   const { deckId } = useParams();
   const navigate = useNavigate();
-  const { decks, progress, updateProgress, recordStudyActivity } = useDeck();
+  const { decks, progress, recentMistakes, updateProgress, recordStudyActivity, recordSessionMistakes } = useDeck();
   const [deck, setDeck] = useState(null);
   const [currentMode, setCurrentMode] = useState(STUDY_MODES.FLIP);
   const [sessionPreset, setSessionPreset] = useState(SESSION_PRESETS.SMART);
@@ -241,13 +276,18 @@ const StudyMode = () => {
       setDeckProgress(updatedProgress);
       deckProgressRef.current = updatedProgress;
 
-      const cardsToStudy = getCardsForPreset(foundDeck.cards, updatedProgress, sessionPreset);
+      const cardsToStudy = getCardsForPreset(
+        foundDeck.cards,
+        updatedProgress,
+        sessionPreset,
+        recentMistakes[deckId] || []
+      );
       setStudyCards(cardsToStudy);
       setEmptyPresetMessage(cardsToStudy.length === 0 ? getPresetEmptyMessage(sessionPreset) : '');
     } else {
       navigate('/');
     }
-  }, [deckId, decks, progress, navigate, sessionPreset]);
+  }, [deckId, decks, progress, recentMistakes, navigate, sessionPreset]);
 
   useEffect(() => {
     deckProgressRef.current = deckProgress;
@@ -337,6 +377,7 @@ const StudyMode = () => {
         : Math.max(sessionStats.total, currentCardIndex + 1);
 
       recordStudyActivity(cardsReviewed);
+      recordSessionMistakes(deckId, sessionAnswerLog);
       setShowResults(true);
       // Save progress
       updateProgress(deckId, deckProgressRef.current);
@@ -400,7 +441,12 @@ const StudyMode = () => {
     setDeckProgress(refreshedProgress);
     deckProgressRef.current = refreshedProgress;
 
-    const cardsToStudy = getCardsForPreset(deck.cards, refreshedProgress, sessionPreset);
+    const cardsToStudy = getCardsForPreset(
+      deck.cards,
+      refreshedProgress,
+      sessionPreset,
+      recentMistakes[deckId] || []
+    );
     setStudyCards(cardsToStudy);
     setEmptyPresetMessage(cardsToStudy.length === 0 ? getPresetEmptyMessage(sessionPreset) : '');
   };
