@@ -40,3 +40,84 @@ npm run dev    # Open http://localhost:3000 and start studying! (๑˃ᴗ˂)ﻭ
 Create a deck, add cards, and study — that's it! � Happy learning, little scholar! (≧◡≦)っ ♡
 
 ---
+
+## 🌐 Deployment (Student Free Path)
+
+Recommended stack:
+
+- **Frontend**: Vercel Hobby (or Netlify Free)
+- **Backend API**: Render Free Web Service
+- **Database**: Supabase Free Postgres
+
+Why this combo:
+
+- Keeps monthly cost near $0 for early usage
+- Better persistence than file-based storage on ephemeral hosts
+- Easy upgrade path when traffic grows
+
+### 1) Create Supabase project
+
+- Create a free project in Supabase
+- Run SQL from `server/supabase/schema.sql` in Supabase SQL Editor
+- Save these values:
+	- `SUPABASE_URL`
+	- `SUPABASE_SERVICE_ROLE_KEY` (backend only, never expose in frontend)
+
+### 2) Deploy backend to Render
+
+- Create a new **Web Service** from this repo
+- Build command: `npm install`
+- Start command: `npm run server`
+- Add environment variables:
+	- `PORT` = `10000` (Render sets this automatically, keep server using `process.env.PORT`)
+	- `SUPABASE_URL` = your Supabase URL
+	- `SUPABASE_SERVICE_ROLE_KEY` = your Supabase service key
+
+Backend behavior:
+
+- If Supabase vars exist, API uses Supabase
+- If Supabase vars are missing, API falls back to local JSON files in `server/data`
+
+Important:
+
+- Render production installs runtime deps only. Server packages must be in `dependencies`.
+
+### 3) Deploy frontend to Vercel (or Netlify)
+
+- Import repo in Vercel
+- Framework preset: Vite
+- Build command: `npm run build`
+- Output directory: `dist`
+- Add env var:
+	- `VITE_API_URL` = `https://<your-render-service>.onrender.com/api`
+
+### 4) CORS and sync checks
+
+- Ensure backend CORS allows your frontend domain
+- Verify these endpoints after deploy:
+	- `GET /api/health`
+	- `GET /api/decks`
+
+### Free-tier caveats
+
+- Render free services can sleep when idle (first request may be slow)
+- Supabase free projects can pause after inactivity
+- App still has localStorage fallback when API unavailable
+
+### 5) Optional: migrate existing local data to Supabase
+
+Use this if you already have decks in `server/data/decks.json` and progress in `server/data/progress.json`.
+
+```bash
+# In project root, with Supabase env vars set
+npm run migrate:supabase
+```
+
+Optional reset mode (destructive):
+
+```bash
+npm run migrate:supabase:reset
+```
+
+Reset mode deletes rows in `decks`, `cards`, and `deck_progress` before import.
+
