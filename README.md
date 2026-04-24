@@ -33,8 +33,8 @@ Shuken Apuri is a playful blend of "shuchuu" (focus) and "shiken" (exam) — lik
 ```bash
 cd c:\Users\pejan\Projects\shuken-apuri
 npm install
-npm run dev    # Open http://localhost:3000 and start studying! (๑˃ᴗ˂)ﻭ
-# Optional: npm run server for backend sync
+npm run start  # API on http://localhost:3001
+npm run dev    # Frontend on http://localhost:5173
 ```
 
 Create a deck, add cards, and study — that's it! � Happy learning, little scholar! (≧◡≦)っ ♡
@@ -67,11 +67,14 @@ Why this combo:
 
 - Create a new **Web Service** from this repo
 - Build command: `npm install`
-- Start command: `npm run server`
+- Start command: `npm run start`
 - Add environment variables:
 	- `PORT` = `10000` (Render sets this automatically, keep server using `process.env.PORT`)
+	- `FRONTEND_ORIGIN` = `https://<your-frontend-domain>.vercel.app`
 	- `SUPABASE_URL` = your Supabase URL
 	- `SUPABASE_SERVICE_ROLE_KEY` = your Supabase service key
+
+Optional: use `render.yaml` in this repo to prefill service settings.
 
 Backend behavior:
 
@@ -97,6 +100,14 @@ Important:
 - Verify these endpoints after deploy:
 	- `GET /api/health`
 	- `GET /api/decks`
+
+### Local pre-deploy checklist
+
+- Add local env vars in `.env` (see `.env.example`)
+- Run API locally: `npm run start`
+- Run frontend locally: `npm run dev`
+- Confirm health endpoint returns `storage: "supabase"` when Supabase env vars are set
+- Set frontend `VITE_API_URL` to your Render API URL before production build
 
 ### Free-tier caveats
 

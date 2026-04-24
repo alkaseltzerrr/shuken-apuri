@@ -7,6 +7,7 @@ import { createClient } from '@supabase/supabase-js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || '';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -49,7 +50,34 @@ const DECK_SELECT_COLUMNS = `
   )
 `;
 
-app.use(cors());
+const allowedOrigins = FRONTEND_ORIGIN
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+const devOrigins = [
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+];
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      // Allow non-browser and same-origin requests with no Origin header.
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.length === 0) {
+        return callback(null, devOrigins.includes(origin));
+      }
+
+      return callback(null, allowedOrigins.includes(origin));
+    },
+  })
+);
 app.use(express.json());
 
 const safeString = (value) => String(value ?? '').trim();
